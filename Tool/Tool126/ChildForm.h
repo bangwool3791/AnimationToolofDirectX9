@@ -51,6 +51,7 @@ public :
 private :
 	unsigned int m_iBoneIndex = 0;
 	unsigned int m_iAniIndex = 0;
+	unsigned int m_iAniInfoIndex = 0;
 public:
 #ifdef AFX_DESIGN_TIME
 	enum { IDD = IDD_DIALOG1 };
@@ -215,6 +216,18 @@ public:
 	afx_msg void OnDeltaposAnimationMinAngle(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnBnClickedSaveButton();
 	afx_msg void OnBnClickedLoadButton();
+	CButton m_checkBoxRoot;
+	CButton m_checkBoxPelvis;
+	CButton m_checkBoxSpine;
+	CButton m_checkBoxNeck;
+	CButton m_checkBoxLeftLeg;
+	CButton m_checkBoxRightLeg;
+	CButton m_checkBoxLeftArm;
+	CButton m_checkBoxRightArm;
+	CButton m_checkBoxLeftElbow;
+	CButton m_checkBoxRightElbow;
+	CButton m_checkBoxLeftAnkle;
+	CButton m_checkBoxRightAnkle;
 };
 
 

@@ -1,9 +1,5 @@
-﻿  Tool126View.cpp
-c:\users\gusha\onedrive\desktop\쥬신\4개월차\수업\d2d4일차-디바이스장치 초기화\tool126\childform.h(71): warning C4244: 'initializing': conversion from 'wchar_t' to 'char', possible loss of data
-c:\users\gusha\onedrive\desktop\쥬신\4개월차\수업\d2d4일차-디바이스장치 초기화\tool126\tool126view.cpp(26): warning C4005: 'new': macro redefinition
-  c:\users\gusha\onedrive\desktop\쥬신\4개월차\수업\d2d4일차-디바이스장치 초기화\tool126\engine_defines.h(28): note: see previous definition of 'new'
-c:\users\gusha\onedrive\desktop\쥬신\4개월차\수업\d2d4일차-디바이스장치 초기화\tool126\tool126view.cpp(103): warning C4244: '=': conversion from 'float' to 'LONG', possible loss of data
-c:\users\gusha\onedrive\desktop\쥬신\4개월차\수업\d2d4일차-디바이스장치 초기화\tool126\tool126view.cpp(104): warning C4244: '=': conversion from 'float' to 'LONG', possible loss of data
+﻿  Test.cpp
+c:\users\gusha\onedrive\desktop\쥬신\4개월차\수업\d2d4일차-디바이스장치 초기화\tool\tool126\test.cpp(458): warning C4305: '=': truncation from 'double' to 'Engine::_float'
 Base.obj : warning LNK4258: directive '/entry:WinMainCRTStartup' not compatible with switch '/ENTRY:wWinMainCRTStartup'; ignored
 Bone.obj : warning LNK4258: directive '/entry:WinMainCRTStartup' not compatible with switch '/ENTRY:wWinMainCRTStartup'; ignored
 Camera.obj : warning LNK4258: directive '/entry:WinMainCRTStartup' not compatible with switch '/ENTRY:wWinMainCRTStartup'; ignored
@@ -36,5 +32,5 @@ VIBuffer.obj : warning LNK4258: directive '/entry:WinMainCRTStartup' not compati
 VIBuffer_Cube.obj : warning LNK4258: directive '/entry:WinMainCRTStartup' not compatible with switch '/ENTRY:wWinMainCRTStartup'; ignored
 VIBuffer_Rect.obj : warning LNK4258: directive '/entry:WinMainCRTStartup' not compatible with switch '/ENTRY:wWinMainCRTStartup'; ignored
 VIBuffer_Terrain.obj : warning LNK4258: directive '/entry:WinMainCRTStartup' not compatible with switch '/ENTRY:wWinMainCRTStartup'; ignored
-  Tool126.vcxproj -> C:\Users\gusha\OneDrive\Desktop\쥬신\4개월차\수업\D2D4일차-디바이스장치 초기화\Debug\Tool126.exe
-  Tool126.vcxproj -> C:\Users\gusha\OneDrive\Desktop\쥬신\4개월차\수업\D2D4일차-디바이스장치 초기화\Debug\Tool126.pdb (Partial PDB)
+  Tool126.vcxproj -> C:\Users\gusha\OneDrive\Desktop\쥬신\4개월차\수업\D2D4일차-디바이스장치 초기화\Tool\Debug\Tool126.exe
+  Tool126.vcxproj -> C:\Users\gusha\OneDrive\Desktop\쥬신\4개월차\수업\D2D4일차-디바이스장치 초기화\Tool\Debug\Tool126.pdb (Partial PDB)

@@ -110,6 +110,23 @@ void CTest::Tick(_float _fDeltaTime)
 	}
 
 	if (g_vecAniInfo[m_eAniState].uMotion SHIFT_OPERATOR(INV_SPINE))
+		if (g_vecAniInfo[m_eAniState].uFlag[SPINE] >> INV_ANI_SET & 0x01)
+			if (!(g_vecAniInfo[m_eAniState].uFlag[SPINE] >> INV_ANI_END & 0x01))
+			{
+				_float fResult = g_vecBoneTransfrom[SPINE]->Turn_Local(g_vecAniInfo[m_eAniState].m_varr[SPINE], _fDeltaTime);
+
+				switch (m_eAniState)
+				{
+				case TEST_STATE_DIE:
+					if (fResult >= g_vecAniInfo[m_eAniState].fAngle[SPINE])
+					{
+						g_vecAniInfo[m_eAniState].uFlag[SPINE] |= (0x01 << INV_ANI_END);
+					}
+					break;
+				}
+			}
+
+	if (g_vecAniInfo[m_eAniState].uMotion SHIFT_OPERATOR(INV_SPINE))
 	if (g_vecAniInfo[m_eAniState].uFlag[SPINE] >> INV_ANI_SET & 0x01)
 		if (!(g_vecAniInfo[m_eAniState].uFlag[SPINE] >> INV_ANI_END & 0x01))
 		{
@@ -499,6 +516,7 @@ HRESULT CTest::SetUp_Components()
 	ZeroMemory(&TransformDesc, sizeof(TRANSFORMDESC));
 	D3DXMatrixIdentity(&TransformDesc.LocalMatrix);
 	D3DXMatrixIdentity(&TransformDesc.WorldMatrix);
+	TransformDesc.fDir = 1.f;
 	//add to root
 	TransformDesc.vLocalPos = _float3{ 0.f, 0.f, 0.f };
 	TransformDesc.fLocalAngle = 0.f;

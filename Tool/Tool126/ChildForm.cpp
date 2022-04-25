@@ -172,6 +172,20 @@ void CChildForm::DoDataExchange(CDataExchange* pDX)
 	m_tbAniMinAngle.SetWindowTextW(TEXT("0.0"));
 	m_spinAniMinAngle.SetRange(-100, 100);
 	m_spinAniMinAngle.SetPos(0);
+	DDX_Control(pDX, CHECK_ROOT, m_checkBoxRoot);
+	DDX_Control(pDX, CHECK_PELVIS, m_checkBoxPelvis);
+	DDX_Control(pDX, CHECK_SPINE, m_checkBoxSpine);
+	DDX_Control(pDX, CHECK_NECK, m_checkBoxNeck);
+	DDX_Control(pDX, CHECK_LEFTLEG, m_checkBoxLeftLeg);
+	DDX_Control(pDX, CHECK_RIGHTLEG, m_checkBoxRightLeg);
+	DDX_Control(pDX, CHECK_LEFTARM, m_checkBoxLeftArm);
+	DDX_Control(pDX, CHECK_RIGHTARM, m_checkBoxRightArm);
+	DDX_Control(pDX, CHECK_LEFTELBOW, m_checkBoxLeftElbow);
+	DDX_Control(pDX, CHECK_RIGHTELBOW, m_checkBoxRightElbow);
+	DDX_Control(pDX, CHECK_LEFTANKLE, m_checkBoxLeftAnkle);
+	DDX_Control(pDX, CHECK_RIGHTANKLE, m_checkBoxRightAnkle);
+
+	OnCbnSelchangeAniSelectAni();
 }
 
 BEGIN_MESSAGE_MAP(CChildForm, CFormView)
@@ -704,13 +718,13 @@ void CChildForm::OnBnClickedAniAxis(UINT uiID)
  	switch (uiID)
 	{
 	case RADIO_ANI_AXIS_1:
-		g_vecAniInfo[m_iAniIndex].m_varr[m_iAniBoneSelect] = D3DXVECTOR3{ 1.f, 0.f, 0.f };
+		g_vecAniInfo[m_iAniInfoIndex].m_varr[m_iAniBoneSelect] = D3DXVECTOR3{ 1.f, 0.f, 0.f };
 		break;
 	case RADIO_ANI_AXIS_2:
-		g_vecAniInfo[m_iAniIndex].m_varr[m_iAniBoneSelect] = D3DXVECTOR3{ 0.f, 1.f, 0.f };
+		g_vecAniInfo[m_iAniInfoIndex].m_varr[m_iAniBoneSelect] = D3DXVECTOR3{ 0.f, 1.f, 0.f };
 		break;
 	case RADIO_ANI_AXIS_3:
-		g_vecAniInfo[m_iAniIndex].m_varr[m_iAniBoneSelect] = D3DXVECTOR3{0.f, 0.f, 1.f};
+		g_vecAniInfo[m_iAniInfoIndex].m_varr[m_iAniBoneSelect] = D3DXVECTOR3{0.f, 0.f, 1.f};
 		break;
 	}
 }
@@ -720,13 +734,13 @@ void CChildForm::OnBnClickedAniDir(UINT uiID)
 	switch (uiID)
 	{
 	case RADIO_ANI_DIR_1:
-		g_vecAniInfo[m_iAniIndex].uDir[m_iAniBoneSelect] = 0x00;
-		g_vecAniInfo[m_iAniIndex].uDir[m_iAniBoneSelect] |= 0b10;
+		g_vecAniInfo[m_iAniInfoIndex].uDir[m_iAniBoneSelect] = 0x00;
+		g_vecAniInfo[m_iAniInfoIndex].uDir[m_iAniBoneSelect] |= 0b10;
 		g_vecBoneTransfrom[m_iAniBoneSelect]->Set_Animation(m_fAniMaxAngle[m_iAniBoneSelect], 1.f);
 		break;
 	case RADIO_ANI_DIR_2:
-		g_vecAniInfo[m_iAniIndex].uDir[m_iAniBoneSelect] = 0x00;
-		g_vecAniInfo[m_iAniIndex].uDir[m_iAniBoneSelect] |= 0b01;
+		g_vecAniInfo[m_iAniInfoIndex].uDir[m_iAniBoneSelect] = 0x00;
+		g_vecAniInfo[m_iAniInfoIndex].uDir[m_iAniBoneSelect] |= 0b01;
 		g_vecBoneTransfrom[m_iAniBoneSelect]->Set_Animation(m_fAniMaxAngle[m_iAniBoneSelect], -1.f);
 		break;
 	}
@@ -735,73 +749,73 @@ void CChildForm::OnBnClickedAniDir(UINT uiID)
 
 void CChildForm::OnBnClickedRoot()
 {
-	g_vecAniInfo[m_iAniIndex].uMotion ^= 1UL << CTest::INV_ROOT;
+	g_vecAniInfo[m_iAniInfoIndex].uMotion ^= 1UL << CTest::INV_ROOT;
 }
 
 
 void CChildForm::OnBnClickedPelvis()
 {
-	g_vecAniInfo[m_iAniIndex].uMotion ^= 1UL << CTest::INV_PELVIS;
+	g_vecAniInfo[m_iAniInfoIndex].uMotion ^= 1UL << CTest::INV_PELVIS;
 }
 
 
 void CChildForm::OnBnClickedSpine()
 {
-	g_vecAniInfo[m_iAniIndex].uMotion ^= 1UL << CTest::INV_SPINE;
+	g_vecAniInfo[m_iAniInfoIndex].uMotion ^= 1UL << CTest::INV_SPINE;
 }
 
 
 void CChildForm::OnBnClickedNeck()
 {
-	g_vecAniInfo[m_iAniIndex].uMotion ^= 1UL << CTest::INV_NECK;
+	g_vecAniInfo[m_iAniInfoIndex].uMotion ^= 1UL << CTest::INV_NECK;
 }
 
 
 void CChildForm::OnBnClickedLeftleg()
 {
-	g_vecAniInfo[m_iAniIndex].uMotion ^= 1UL << CTest::INV_LEFTLEG;
+	g_vecAniInfo[m_iAniInfoIndex].uMotion ^= 1UL << CTest::INV_LEFTLEG;
 }
 
 
 void CChildForm::OnBnClickedRightleg()
 {
-	g_vecAniInfo[m_iAniIndex].uMotion ^= 1UL << CTest::INV_RIGHTLEG;
+	g_vecAniInfo[m_iAniInfoIndex].uMotion ^= 1UL << CTest::INV_RIGHTLEG;
 }
 
 
 void CChildForm::OnBnClickedLeftarm()
 {
-	g_vecAniInfo[m_iAniIndex].uMotion ^= 1UL << CTest::INV_LEFTARM;
+	g_vecAniInfo[m_iAniInfoIndex].uMotion ^= 1UL << CTest::INV_LEFTARM;
 }
 
 
 void CChildForm::OnBnClickedRightarm()
 {
-	g_vecAniInfo[m_iAniIndex].uMotion ^= 1UL << CTest::INV_RIGHTARM;
+	g_vecAniInfo[m_iAniInfoIndex].uMotion ^= 1UL << CTest::INV_RIGHTARM;
 }
 
 
 void CChildForm::OnBnClickedLeftelbow()
 {
-	g_vecAniInfo[m_iAniIndex].uMotion ^= 1UL << CTest::INV_LEFTELBOW;
+	g_vecAniInfo[m_iAniInfoIndex].uMotion ^= 1UL << CTest::INV_LEFTELBOW;
 }
 
 
 void CChildForm::OnBnClickedRightelbow()
 {
-	g_vecAniInfo[m_iAniIndex].uMotion ^= 1UL << CTest::INV_RIGHTELBOW;
+	g_vecAniInfo[m_iAniInfoIndex].uMotion ^= 1UL << CTest::INV_RIGHTELBOW;
 }
 
 
 void CChildForm::OnBnClickedLeftankle()
 {
-	g_vecAniInfo[m_iAniIndex].uMotion ^= 1UL << CTest::INV_LEFTANKLE;
+	g_vecAniInfo[m_iAniInfoIndex].uMotion ^= 1UL << CTest::INV_LEFTANKLE;
 }
 
 
 void CChildForm::OnBnClickedRightankle()
 {
-	g_vecAniInfo[m_iAniIndex].uMotion ^= 1UL << CTest::INV_RIGHTANKLE;
+	g_vecAniInfo[m_iAniInfoIndex].uMotion ^= 1UL << CTest::INV_RIGHTANKLE;
 }
 
 
@@ -813,8 +827,68 @@ void CChildForm::OnCbnSelchangeAniSelectBone()
 
 void CChildForm::OnCbnSelchangeAniSelectAni()
 {
-	m_iAniIndex = m_cbAniSelect.GetCurSel();
-	g_pTest->Set_TestState((CTest::TEST_STATE)m_iAniIndex);
+	m_iAniInfoIndex = m_cbAniSelect.GetCurSel();
+	g_pTest->Set_TestState((CTest::TEST_STATE)m_iAniInfoIndex);
+
+	if (g_vecAniInfo[m_iAniInfoIndex].uMotion SHIFT_OPERATOR(CTest::INV_ROOT))
+		m_checkBoxRoot.SetCheck(TRUE);
+	else
+		m_checkBoxRoot.SetCheck(FALSE);
+
+	if (g_vecAniInfo[m_iAniInfoIndex].uMotion SHIFT_OPERATOR(CTest::INV_PELVIS))
+		m_checkBoxPelvis.SetCheck(TRUE);
+	else
+		m_checkBoxPelvis.SetCheck(FALSE);
+
+	if (g_vecAniInfo[m_iAniInfoIndex].uMotion SHIFT_OPERATOR(CTest::INV_SPINE))
+		m_checkBoxSpine.SetCheck(TRUE);
+	else
+		m_checkBoxSpine.SetCheck(FALSE);
+
+	if (g_vecAniInfo[m_iAniInfoIndex].uMotion SHIFT_OPERATOR(CTest::INV_NECK))
+		m_checkBoxNeck.SetCheck(TRUE);
+	else
+		m_checkBoxNeck.SetCheck(FALSE);
+
+	if (g_vecAniInfo[m_iAniInfoIndex].uMotion SHIFT_OPERATOR(CTest::INV_LEFTLEG))
+		m_checkBoxLeftLeg.SetCheck(TRUE);
+	else
+		m_checkBoxLeftLeg.SetCheck(FALSE);
+
+	if (g_vecAniInfo[m_iAniInfoIndex].uMotion SHIFT_OPERATOR(CTest::INV_RIGHTLEG))
+		m_checkBoxRightLeg.SetCheck(TRUE);
+	else
+		m_checkBoxRightLeg.SetCheck(FALSE);
+
+	if (g_vecAniInfo[m_iAniInfoIndex].uMotion SHIFT_OPERATOR(CTest::INV_LEFTARM))
+		m_checkBoxLeftArm.SetCheck(TRUE);
+	else
+		m_checkBoxLeftArm.SetCheck(FALSE);
+
+	if (g_vecAniInfo[m_iAniInfoIndex].uMotion SHIFT_OPERATOR(CTest::INV_RIGHTARM))
+		m_checkBoxRightArm.SetCheck(TRUE);
+	else
+		m_checkBoxRightArm.SetCheck(FALSE);
+	//Modifying
+	if (g_vecAniInfo[m_iAniInfoIndex].uMotion SHIFT_OPERATOR(CTest::INV_LEFTELBOW))
+		m_checkBoxLeftElbow.SetCheck(TRUE);
+	else
+		m_checkBoxLeftElbow.SetCheck(FALSE);
+
+	if (g_vecAniInfo[m_iAniInfoIndex].uMotion SHIFT_OPERATOR(CTest::INV_RIGHTELBOW))
+		m_checkBoxRightElbow.SetCheck(TRUE);
+	else
+		m_checkBoxRightElbow.SetCheck(FALSE);
+
+	if (g_vecAniInfo[m_iAniInfoIndex].uMotion SHIFT_OPERATOR(CTest::INV_LEFTANKLE))
+		m_checkBoxLeftAnkle.SetCheck(TRUE);
+	else
+		m_checkBoxLeftAnkle.SetCheck(FALSE);
+
+	if (g_vecAniInfo[m_iAniInfoIndex].uMotion SHIFT_OPERATOR(CTest::INV_RIGHTANKLE))
+		m_checkBoxRightAnkle.SetCheck(TRUE);
+	else
+		m_checkBoxRightAnkle.SetCheck(FALSE);
 }
 
 
@@ -825,8 +899,8 @@ void CChildForm::AnimationMaxAngleChagned()
 
 	m_fAniMaxAngle[m_iAniBoneSelect] = _tstof(m_strAniMaxAngle);
 
-	g_vecAniInfo[m_iAniIndex].fAngle[m_iAniBoneSelect] = m_fAniMaxAngle[m_iAniBoneSelect];
-	g_vecBoneTransfrom[m_iAniBoneSelect]->Set_MaxAngle(g_vecAniInfo[m_iAniIndex].fAngle[m_iAniBoneSelect]);
+	g_vecAniInfo[m_iAniInfoIndex].fAngle[m_iAniBoneSelect] = m_fAniMaxAngle[m_iAniBoneSelect];
+	g_vecBoneTransfrom[m_iAniBoneSelect]->Set_MaxAngle(g_vecAniInfo[m_iAniInfoIndex].fAngle[m_iAniBoneSelect]);
 }
 
 
@@ -854,9 +928,9 @@ void CChildForm::EnChangeMinAngle()
 
 	m_fAniMinAngle[m_iAniBoneSelect] = _tstof(m_strAniMinAngle);
 
-	g_vecAniInfo[m_iAniIndex].fAngle[m_iAniBoneSelect] = m_fAniMinAngle[m_iAniBoneSelect];
+	g_vecAniInfo[m_iAniInfoIndex].fAngle[m_iAniBoneSelect] = m_fAniMinAngle[m_iAniBoneSelect];
 
-	g_vecBoneTransfrom[m_iAniBoneSelect]->Set_LocalAngle(g_vecAniInfo[m_iAniIndex].fAngle[m_iAniBoneSelect]);
+	g_vecBoneTransfrom[m_iAniBoneSelect]->Set_LocalAngle(g_vecAniInfo[m_iAniInfoIndex].fAngle[m_iAniBoneSelect]);
 }
 
 

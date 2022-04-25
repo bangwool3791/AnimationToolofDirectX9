@@ -38,11 +38,11 @@ namespace Engine
 
 	typedef struct tagTransformDesc
 	{
-		_float      fDir = 0.f;
+		_float      fDir = 1.f;
 		_float		fMaxAngle = 0.f;
 		_float		fLocalAngle = 0.f;//비저장 데이터
 		_float3		vLocalPos;//비저장데이터
-		_float3     vAxis;//비저장데이터
+		_float3     vAxis = D3DXVECTOR3{ 1.f, 0.f, 0.f };//비저장데이터
 		_float		fSpeedPerSec = 0.f;
 		_float		fRotationPerSec = 0.f;
 		_float4x4   LocalMatrix;
