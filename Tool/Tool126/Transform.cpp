@@ -32,6 +32,7 @@ HRESULT CTransform::NativeConstruct_Prototype()
 
 HRESULT CTransform::NativeConstruct(void * pArg)
 {
+	//월드 로컬 행렬 초기화 삭제
 	if (nullptr != pArg)
 	{
 		memcpy(&m_TransformDesc, pArg, sizeof(TRANSFORMDESC));
@@ -87,31 +88,7 @@ HRESULT CTransform::Go_Right(_float fTimeDelta)
 }
 #include <iostream>
 using namespace std;
-HRESULT CTransform::Go_3DPerspective(_float fTimeDelta, _float3 vTarget)
-{
-	_float3		vPosition = Get_State(STATE_POSITION);
 
-	cout << "X 좌표 값 이동 : " << fabsf(vTarget.x - vPosition.x) << endl;
-	cout << "Y 좌표 값 이동 : " << fabsf(vTarget.y - vPosition.y) << endl;
-	cout << "Z 좌표 값 이동 : " << fabsf(vTarget.z - vPosition.z) << endl;
-	cout << "X 타겟 " << vTarget.x << endl;
-	cout << "Y 타겟 " << vTarget.y << endl;
-	cout << "Z 타겟 " << vTarget.z << endl;
-	cout << "X 이동 " << vPosition.x << endl;
-	cout << "Y 이동 " << vPosition.y << endl;
-	cout << "Z 이동 " << vPosition.z << endl;
-
-	if (fabsf(vTarget.y - vPosition.y) < 1.f)
-		return S_OK;
-
-	vPosition += *D3DXVec3Normalize(&vTarget, &vTarget) * fTimeDelta;
-
-	Set_State(STATE_POSITION, vPosition);
-	//if ((fabsf(vPosition.x) - fabsf(vTarget.x) < 1) && (fabsf(vPosition.y) - fabsf(vTarget.y) < 1) && (fabsf(vPosition.z) - fabsf(vTarget.z) < 1))
-
-	return E_FAIL;
-
-}
 HRESULT CTransform::Go_Backward(_float fTimeDelta)
 {
 	_float3		vPosition = Get_State(STATE_POSITION);
@@ -139,11 +116,16 @@ HRESULT CTransform::Rotation(const _float3 & vAxis, _float fRadian)
 	D3DXVec3TransformNormal(&vUp, &vUp, &RotationMatrix);
 	D3DXVec3TransformNormal(&vLook, &vLook, &RotationMatrix);
 
-	Set_State(STATE_RIGHT, vRight);
-	Set_State(STATE_UP, vUp);
-	Set_State(STATE_LOOK, vLook);
+	Set_LocalState(STATE_RIGHT, vRight);
+	Set_LocalState(STATE_UP, vUp);
+	Set_LocalState(STATE_LOOK, vLook);
 
 	return S_OK;
+}
+
+void CTransform::Set_LocalState(STATE eState, const D3DXVECTOR3& vState) 
+{
+	memcpy(&m_TransformDesc.LocalMatrix.m[eState][0], &vState, sizeof(D3DXVECTOR3));
 }
 
 HRESULT CTransform::Turn(const _float3 & vAxis, _float fTimeDelta)
@@ -163,28 +145,36 @@ HRESULT CTransform::Turn(const _float3 & vAxis, _float fTimeDelta)
 	Set_State(STATE_UP, vUp);
 	Set_State(STATE_LOOK, vLook);
 
-	//m_eTransState = TRANS_STATE_CHILD;
-
 	return S_OK;
 }
+//추가
+void CTransform::Turn_Bone(_float3 & vAxis, _float fTimeDelta, _float fAngle)
+{
 
+	_float4x4   RotationMatrix;
+
+	_float3 Sacle = Get_LocalScale();
+
+	D3DXMatrixRotationAxis(&RotationMatrix, &vAxis, fAngle);
+
+	_float3		vRight = _float3{ 1.f, 0.f, 0.f };
+	_float3		vUp = _float3{ 0.f, 1.f, 0.f };
+	_float3		vLook = _float3{ 0.f, 0.f, 1.f };
+
+	D3DXVec3TransformNormal(&vRight, &vRight, &RotationMatrix);
+	D3DXVec3TransformNormal(&vUp, &vUp, &RotationMatrix);
+	D3DXVec3TransformNormal(&vLook, &vLook, &RotationMatrix);
+	Set_LocalState(STATE_RIGHT, vRight * Sacle.x);
+	Set_LocalState(STATE_UP, vUp * Sacle.y);
+	Set_LocalState(STATE_LOOK, vLook * Sacle.z);
+	
+}
+//수정
 _float CTransform::Turn_Local(_float3 & vAxis, _float fTimeDelta)
 {
-	if (fTimeDelta > 1.f)
-		return 0.f;
 
 	if (3.141592 * 2 < fabsf(m_fAngle))
 		m_fAngle = 0.f;
-
-	//if(m_pTag)
-	//	if(!CString(m_pTag).Compare(KEY_BONE_LEFTLEG))
-	//		wcout << "왼쪽 다리 : " << m_fAngle << endl;
-	//	else if (!CString(m_pTag).Compare(KEY_BONE_RIGHTLEG))
-	//		wcout << "오른쪽 다리 : " << m_fAngle << endl;
-	//	else if (!CString(m_pTag).Compare(KEY_BONE_LEFTARM))
-	//		wcout << "왼쪽 팔 : " << m_fAngle << endl;
-	//	else if (!CString(m_pTag).Compare(KEY_BONE_RIGHTARM))
-	//		wcout << "오른쪽 팔 : " << m_fAngle << endl;
 
 	if (0 < m_TransformDesc.fMaxAngle - m_TransformDesc.fLocalAngle)
 	{
@@ -214,27 +204,29 @@ _float CTransform::Turn_Local(_float3 & vAxis, _float fTimeDelta)
 
 	if (0 == m_TransformDesc.fMaxAngle - m_TransformDesc.fLocalAngle)
 	{
-		m_fAngle = 0.f;
+		m_fAngle = m_TransformDesc.fMaxAngle;
 	}
+	//hhlee
+	m_fAngle += fTimeDelta * m_TransformDesc.fDir * m_TransformDesc.fRotationPerSec;
 
-	m_fAngle += fTimeDelta * m_TransformDesc.fDir * 0.7f;
-
-	_float3		vScaleDesc = Get_Scale();
-
-	_float3		vRight = _float3(1.f, 0.f, 0.f) * vScaleDesc.x;
-	_float3		vUp = _float3(0.f, 1.f, 0.f) * vScaleDesc.y;
-	_float3		vLook = _float3(0.f, 0.f, 1.f) * vScaleDesc.z;
+	_float3		vRight = _float3{ 1.f, 0.f, 0.f };
+	_float3		vUp = _float3{ 0.f, 1.f, 0.f };
+	_float3		vLook = _float3{ 0.f, 0.f, 1.f };
 
 	_float4x4	RotationMatrix;
 	D3DXMatrixRotationAxis(&RotationMatrix, &vAxis, m_fAngle);
 
-	D3DXVec3TransformNormal(&vRight, &vRight, &RotationMatrix);
-	D3DXVec3TransformNormal(&vUp, &vUp, &RotationMatrix);
-	D3DXVec3TransformNormal(&vLook, &vLook, &RotationMatrix);
+	//_float3 worldPos = Set_MatrixPos(STATE::STATE_POSITION, m_TransformDesc.WorldMatrix, _float3{ 0.f, 0.f, 0.f });
 
-	Set_LocalState(STATE_RIGHT, vRight);
-	Set_LocalState(STATE_UP, vUp);
-	Set_LocalState(STATE_LOOK, vLook);
+	if (0 != m_TransformDesc.fMaxAngle && 0 != m_TransformDesc.fLocalAngle)
+	{
+		D3DXVec3TransformNormal(&vRight, &vRight, &RotationMatrix);
+		Set_State(STATE_RIGHT, vRight);
+		D3DXVec3TransformNormal(&vUp, &vUp, &RotationMatrix);
+		Set_State(STATE_UP, vUp);
+		D3DXVec3TransformNormal(&vLook, &vLook, &RotationMatrix);
+		Set_State(STATE_LOOK, vLook);
+	}
 	return m_fAngle;
 }
 
@@ -268,7 +260,7 @@ HRESULT CTransform::Chase(const _float3 & vTargetPos, _float fTimeDelta, _float 
 
 	return S_OK;
 }
-
+//수정
 HRESULT CTransform::Bind_OnGraphicDevice()
 {
 	if (nullptr == m_pGraphicDev)
@@ -284,9 +276,18 @@ HRESULT CTransform::Bind_OnGraphicDevice()
 		{
 			D3DXMatrixIdentity(&m_BindLocalMatrix);
 			D3DXMatrixIdentity(&m_BindWorldMatrix);
+
 			m_BindLocalMatrix = m_TransformDesc.LocalMatrix * m_pParentLocalMatrix[0];
 			m_BindWorldMatrix = m_TransformDesc.WorldMatrix * m_pParentWorldMatrix[0];
 			World = m_TransformDesc.LocalMatrix * m_pParentLocalMatrix[0] * m_TransformDesc.WorldMatrix *  m_pParentWorldMatrix[0];
+
+			_float3 bindlocalPos = Set_MatrixPos(STATE::STATE_POSITION, m_pParentLocalMatrix[0], _float3{ 0.f, 0.f, 0.f });
+			_float3 localPos = Set_MatrixPos(STATE::STATE_POSITION, m_TransformDesc.LocalMatrix, _float3{ 0.f, 0.f, 0.f });
+
+			World = m_TransformDesc.LocalMatrix * m_pParentLocalMatrix[0] * m_TransformDesc.WorldMatrix * m_pParentWorldMatrix[0];
+
+			Set_MatrixPos(STATE::STATE_POSITION, m_pParentLocalMatrix[0], bindlocalPos);
+			Set_MatrixPos(STATE::STATE_POSITION, m_TransformDesc.LocalMatrix, localPos);
 		}
 	}
 	else

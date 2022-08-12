@@ -3,12 +3,12 @@
 #include <fstream>
 
 #include "Test.h"
-extern vector<CTransform*> g_vecBoneTransfrom;
+extern vector<vector<CTransform*>> g_vecBoneTransfrom;
 extern vector<CVIBuffer_Cube*> g_vecAniCube;
 extern vector<CTest::TEST_STRUCT> g_vecAniInfo;
 extern CTest* g_pTest;
 extern CRITICAL_SECTION g_CriticalSection;
-
+extern vector<CBone*> g_pBone;
 const int   LEN_POS = 2;
 const int	LEN_BONE = 2;
 const int	LEN_ANI_CUBE = 2;
@@ -33,8 +33,8 @@ public:
 		m_iAniCubeIndex = sizeof(TRANSFORMDESC) * CTest::ANIMATION_STATE_END;
 		m_iBoneIndex = sizeof(CVIBuffer_Cube::STSHAPE) * CTest::ANI_RECT_END;
 		m_iAniInfoIndex = sizeof(CTest::TEST_STRUCT) * CTest::TEST_STATE_END;
-
-		m_iToTalIndex = m_iAniCubeIndex + m_iBoneIndex + m_iAniInfoIndex + TOTAL_LEN_SIZE + 1;
+		//수정
+		m_iToTalIndex = m_iAniCubeIndex + m_iBoneIndex * m_iAniInfoIndex + m_iAniInfoIndex + TOTAL_LEN_SIZE + 1;
 	}
 	virtual ~CParser();
 private :
@@ -44,7 +44,7 @@ private :
 	int			 m_iToTalIndex = 0;
 	int			 m_iAniCubeIndex = 0;
 	int          m_iBoneIndex = 0;
-	int          m_iAniInfoIndex = 0;
+	int			m_iAniInfoIndex = 0;
 public :
 	HRESULT Save_Process_Animation()
 	{
@@ -61,27 +61,29 @@ public :
 		m_WriteBuffer[m_iWriteFileIndex] = m_iToTalIndex & 0xFF;
 		++m_iWriteFileIndex;
 
-		m_WriteBuffer[m_iWriteFileIndex] = (CTest::ANIMATION_STATE_END >> 8) & 0xFF;
+		m_WriteBuffer[m_iWriteFileIndex] = ((CTest::TEST_STATE_END * CTest::ANIMATION_STATE_END) >> 8) & 0xFF;
 		++m_iWriteFileIndex;
-		m_WriteBuffer[m_iWriteFileIndex] = CTest::ANIMATION_STATE_END & 0xFF;
+		m_WriteBuffer[m_iWriteFileIndex] = (CTest::TEST_STATE_END * CTest::ANIMATION_STATE_END) & 0xFF;
 		++m_iWriteFileIndex;
 
 		int iIndex = 0;
-
-		for (iIndex = 0; iIndex < CTest::ANIMATION_STATE_END; ++iIndex)
+		for (int i = 0; i < CTest::TEST_STATE_END; ++i)
 		{
-			int iLen = sizeof(TRANSFORMDESC) + 1;
-			char* Array = NULL;
-			EnterCriticalSection(&g_CriticalSection);
-			Array = (char*)g_vecBoneTransfrom[iIndex]->Get_TansDesc();
-
-			for (int i = 0; i < sizeof(TRANSFORMDESC); ++i)
+			for (iIndex = 0; iIndex < CTest::ANIMATION_STATE_END; ++iIndex)
 			{
-				m_WriteBuffer[m_iWriteFileIndex] = Array[i];
-				++m_iWriteFileIndex;
+				char* Array = NULL;
+				EnterCriticalSection(&g_CriticalSection);
+				Array = (char*)g_vecBoneTransfrom[i][iIndex]->Get_TansDesc();
+
+				for (int i = 0; i < sizeof(TRANSFORMDESC); ++i)
+				{
+					m_WriteBuffer[m_iWriteFileIndex] = Array[i];
+					++m_iWriteFileIndex;
+				}
+				LeaveCriticalSection(&g_CriticalSection);
 			}
-			LeaveCriticalSection(&g_CriticalSection);
 		}
+
 
 		m_WriteBuffer[m_iWriteFileIndex] = (CTest::ANI_RECT_END >> 8) & 0xFF;
 		++m_iWriteFileIndex;
@@ -95,6 +97,11 @@ public :
 			EnterCriticalSection(&g_CriticalSection);
 			Array = (char*)g_vecAniCube[iIndex]->Get_ShapeInfo();
 			CVIBuffer_Cube::STSHAPE st = *(CVIBuffer_Cube::STSHAPE*)Array;
+			cout << "ST SHPAE Width" << st.fWidth << endl;
+			cout << "ST SHPAE Top" << st.fTop << endl;
+			cout << "ST SHPAE Bottom" << st.fBottom << endl;
+			cout << "ST SHPAE Pos" << st.fPos << endl;
+
 			for (int i = 0; i < sizeof(CVIBuffer_Cube::STSHAPE); ++i)
 			{
 				m_WriteBuffer[m_iWriteFileIndex] = Array[i];
@@ -114,7 +121,7 @@ public :
 
 			EnterCriticalSection(&g_CriticalSection);
 			Array = (char*)&g_vecAniInfo[iIndex];
-
+			cout << "인포저장 확인 " << g_vecAniInfo[iIndex].uMotion << endl;
 			for (int i = 0; i < sizeof(CTest::TEST_STRUCT); ++i)
 			{
 				m_WriteBuffer[m_iWriteFileIndex] = Array[i];
@@ -148,6 +155,7 @@ public :
 	{
 		ifstream infile("animation.bin", ios::in | ios::binary);
 
+		int FileIndex = 0;
 		_ubyte szLen[2];
 		ZeroMemory(&szLen, 0);
 		infile.read((char*)szLen, 2);
@@ -179,6 +187,7 @@ public :
 		int iDataCase = LEN_STEP1;
 		uint16_t Len = 0;
 		int iDataIndex = 0;
+		int iBoneIndex = 0;
 
 		TRANSFORMDESC * pTranformDesc;
 		CVIBuffer_Cube::STSHAPE * pShape;
@@ -214,7 +223,6 @@ public :
 						{
 							if (0 == i)
 							{
-								cout << "뼈 동적 할당 " << index << endl;
 								pTranformDesc = new TRANSFORMDESC;
 								pArray = (byte*)pTranformDesc;
 							}
@@ -223,108 +231,107 @@ public :
 
 							index++;
 
-							if (sizeof(TRANSFORMDESC) -1 == i)
+							if (sizeof(TRANSFORMDESC) - 1 == i)
 							{
-								switch (iDataIndex)
+								switch (iDataIndex % CTest::ANIMATION_STATE_END)
 								{
 								case CTest::ROOT:
-									g_pBone->EraseBone(BONE_LAYER_PLAYER, Engine::KEY_BONE_ROOT);
-									g_pBone->Add_Bone(BONE_LAYER_PLAYER, Engine::KEY_BONE_ROOT, *(TRANSFORMDESC*)pArray, arrBoneRadius);
-									g_vecBoneTransfrom[CTest::ROOT] = (CTransform*)g_pBone->Find_Bone(BONE_LAYER_PLAYER, Engine::KEY_BONE_ROOT);
-									cout << "ROOT Bone Load " << index << endl;
+									g_pBone[iBoneIndex]->EraseBone(BONE_LAYER_PLAYER, Engine::KEY_BONE_ROOT);
+									g_pBone[iBoneIndex]->Add_Bone(BONE_LAYER_PLAYER, Engine::KEY_BONE_ROOT, *(TRANSFORMDESC*)pArray, arrBoneRadius);
+									g_vecBoneTransfrom[iBoneIndex][CTest::ROOT] = ((CTransform*)g_pBone[iBoneIndex]->Find_Bone(BONE_LAYER_PLAYER, Engine::KEY_BONE_ROOT));
 									break;
 								case CTest::PELVIS:
-									g_pBone->EraseBone(BONE_LAYER_PLAYER, Engine::KEY_BONE_PELVIS);
-									g_pBone->Add_Bone(BONE_LAYER_PLAYER, Engine::KEY_BONE_PELVIS, *(TRANSFORMDESC*)pArray, arrBoneRadius);
-									g_vecBoneTransfrom[CTest::PELVIS] = (CTransform*)g_pBone->Find_Bone(BONE_LAYER_PLAYER, Engine::KEY_BONE_PELVIS);
-									g_pBone->Setting_ParentBone(BONE_LAYER_PLAYER, Engine::KEY_BONE_ROOT, Engine::KEY_BONE_PELVIS);
-									cout << "PELVIS Bone Load " << index << endl;
+									g_pBone[iBoneIndex]->EraseBone(BONE_LAYER_PLAYER, Engine::KEY_BONE_PELVIS);
+									g_pBone[iBoneIndex]->Add_Bone(BONE_LAYER_PLAYER, Engine::KEY_BONE_PELVIS, *(TRANSFORMDESC*)pArray, arrBoneRadius);
+									g_vecBoneTransfrom[iBoneIndex][CTest::PELVIS] = ((CTransform*)g_pBone[iBoneIndex]->Find_Bone(BONE_LAYER_PLAYER, Engine::KEY_BONE_PELVIS));
+									g_pBone[iBoneIndex]->Setting_ParentBone(BONE_LAYER_PLAYER, Engine::KEY_BONE_ROOT, Engine::KEY_BONE_PELVIS);
+									wcout << "본 정보 [PELVIS] " << ((TRANSFORMDESC*)pArray)->szKey << endl;
+								
 									break;
 								case CTest::SPINE:
-									g_pBone->EraseBone(BONE_LAYER_PLAYER, Engine::KEY_BONE_SPINE);
-									g_pBone->Add_Bone(BONE_LAYER_PLAYER, Engine::KEY_BONE_SPINE, *(TRANSFORMDESC*)pArray, arrBoneRadius);
-									g_vecBoneTransfrom[CTest::SPINE] = (CTransform*)g_pBone->Find_Bone(BONE_LAYER_PLAYER, Engine::KEY_BONE_SPINE);
-									g_pBone->Setting_ParentBone(BONE_LAYER_PLAYER, Engine::KEY_BONE_PELVIS, Engine::KEY_BONE_SPINE);
-									cout << "SPINE Bone Load " << index << endl;
+									g_pBone[iBoneIndex]->EraseBone(BONE_LAYER_PLAYER, Engine::KEY_BONE_SPINE);
+									g_pBone[iBoneIndex]->Add_Bone(BONE_LAYER_PLAYER, Engine::KEY_BONE_SPINE, *(TRANSFORMDESC*)pArray, arrBoneRadius);
+									g_vecBoneTransfrom[iBoneIndex][CTest::SPINE] = ((CTransform*)g_pBone[iBoneIndex]->Find_Bone(BONE_LAYER_PLAYER, Engine::KEY_BONE_SPINE));
+									g_pBone[iBoneIndex]->Setting_ParentBone(BONE_LAYER_PLAYER, Engine::KEY_BONE_PELVIS, Engine::KEY_BONE_SPINE);
+									
 									break;
 								case CTest::NECK:
-									g_pBone->EraseBone(BONE_LAYER_PLAYER, Engine::KEY_BONE_NECK);
-									g_pBone->Add_Bone(BONE_LAYER_PLAYER, Engine::KEY_BONE_NECK, *(TRANSFORMDESC*)pArray, arrBoneRadius);
-									g_vecBoneTransfrom[CTest::NECK] = (CTransform*)g_pBone->Find_Bone(BONE_LAYER_PLAYER, Engine::KEY_BONE_NECK);
-									g_pBone->Setting_ParentBone(BONE_LAYER_PLAYER, Engine::KEY_BONE_SPINE, Engine::KEY_BONE_NECK);
-									cout << "NECK Bone Load " << index << endl;
+									g_pBone[iBoneIndex]->EraseBone(BONE_LAYER_PLAYER, Engine::KEY_BONE_NECK);
+									g_pBone[iBoneIndex]->Add_Bone(BONE_LAYER_PLAYER, Engine::KEY_BONE_NECK, *(TRANSFORMDESC*)pArray, arrBoneRadius);
+									g_vecBoneTransfrom[iBoneIndex][CTest::NECK] = ((CTransform*)g_pBone[iBoneIndex]->Find_Bone(BONE_LAYER_PLAYER, Engine::KEY_BONE_NECK));
+									g_pBone[iBoneIndex]->Setting_ParentBone(BONE_LAYER_PLAYER, Engine::KEY_BONE_SPINE, Engine::KEY_BONE_NECK);
+							
 									break;
 								case CTest::LEFTLEG:
-									g_pBone->EraseBone(BONE_LAYER_PLAYER, Engine::KEY_BONE_LEFTLEG);
-									g_pBone->Add_Bone(BONE_LAYER_PLAYER, Engine::KEY_BONE_LEFTLEG, *(TRANSFORMDESC*)pArray, arrBoneRadius);
-									g_vecBoneTransfrom[CTest::LEFTLEG] = (CTransform*)g_pBone->Find_Bone(BONE_LAYER_PLAYER, Engine::KEY_BONE_LEFTLEG);
-									g_pBone->Setting_ParentBone(BONE_LAYER_PLAYER, Engine::KEY_BONE_PELVIS, Engine::KEY_BONE_LEFTLEG);
-									cout << "LEFTLEG Bone Load " << index << endl;
+									g_pBone[iBoneIndex]->EraseBone(BONE_LAYER_PLAYER, Engine::KEY_BONE_LEFTLEG);
+									g_pBone[iBoneIndex]->Add_Bone(BONE_LAYER_PLAYER, Engine::KEY_BONE_LEFTLEG, *(TRANSFORMDESC*)pArray, arrBoneRadius);
+									g_vecBoneTransfrom[iBoneIndex][CTest::LEFTLEG] = ((CTransform*)g_pBone[iBoneIndex]->Find_Bone(BONE_LAYER_PLAYER, Engine::KEY_BONE_LEFTLEG));
+									g_pBone[iBoneIndex]->Setting_ParentBone(BONE_LAYER_PLAYER, Engine::KEY_BONE_PELVIS, Engine::KEY_BONE_LEFTLEG);
+						
 									break;
 								case CTest::RIGHTLEG:
-									g_pBone->EraseBone(BONE_LAYER_PLAYER, Engine::KEY_BONE_RIGHTLEG);
-									g_pBone->Add_Bone(BONE_LAYER_PLAYER, Engine::KEY_BONE_RIGHTLEG, *(TRANSFORMDESC*)pArray, arrBoneRadius);
-									g_vecBoneTransfrom[CTest::RIGHTLEG] = (CTransform*)g_pBone->Find_Bone(BONE_LAYER_PLAYER, Engine::KEY_BONE_RIGHTLEG);
-									g_pBone->Setting_ParentBone(BONE_LAYER_PLAYER, Engine::KEY_BONE_PELVIS, Engine::KEY_BONE_RIGHTLEG);
-									cout << "RIGHTLEG Bone Load " << index << endl;
+									g_pBone[iBoneIndex]->EraseBone(BONE_LAYER_PLAYER, Engine::KEY_BONE_RIGHTLEG);
+									g_pBone[iBoneIndex]->Add_Bone(BONE_LAYER_PLAYER, Engine::KEY_BONE_RIGHTLEG, *(TRANSFORMDESC*)pArray, arrBoneRadius);
+									g_vecBoneTransfrom[iBoneIndex][CTest::RIGHTLEG] = ((CTransform*)g_pBone[iBoneIndex]->Find_Bone(BONE_LAYER_PLAYER, Engine::KEY_BONE_RIGHTLEG));
+									g_pBone[iBoneIndex]->Setting_ParentBone(BONE_LAYER_PLAYER, Engine::KEY_BONE_PELVIS, Engine::KEY_BONE_RIGHTLEG);
+							
 									break;
 								case CTest::LEFTARM:
-									g_pBone->EraseBone(BONE_LAYER_PLAYER, Engine::KEY_BONE_LEFTARM);
-									g_pBone->Add_Bone(BONE_LAYER_PLAYER, Engine::KEY_BONE_LEFTARM, *(TRANSFORMDESC*)pArray, arrBoneRadius);
-									g_vecBoneTransfrom[CTest::LEFTARM] = (CTransform*)g_pBone->Find_Bone(BONE_LAYER_PLAYER, Engine::KEY_BONE_LEFTARM);
-									g_pBone->Setting_ParentBone(BONE_LAYER_PLAYER, Engine::KEY_BONE_SPINE, Engine::KEY_BONE_LEFTARM);
-									cout << "LEFTARM Bone Load " << index << endl;
+									g_pBone[iBoneIndex]->EraseBone(BONE_LAYER_PLAYER, Engine::KEY_BONE_LEFTARM);
+									g_pBone[iBoneIndex]->Add_Bone(BONE_LAYER_PLAYER, Engine::KEY_BONE_LEFTARM, *(TRANSFORMDESC*)pArray, arrBoneRadius);
+									g_vecBoneTransfrom[iBoneIndex][CTest::LEFTARM] = ((CTransform*)g_pBone[iBoneIndex]->Find_Bone(BONE_LAYER_PLAYER, Engine::KEY_BONE_LEFTARM));
+									g_pBone[iBoneIndex]->Setting_ParentBone(BONE_LAYER_PLAYER, Engine::KEY_BONE_SPINE, Engine::KEY_BONE_LEFTARM);
 									break;
 								case CTest::RIGHTARM:
-									g_pBone->EraseBone(BONE_LAYER_PLAYER, Engine::KEY_BONE_RIGHTARM);
-									g_pBone->Add_Bone(BONE_LAYER_PLAYER, Engine::KEY_BONE_RIGHTARM, *(TRANSFORMDESC*)pArray, arrBoneRadius);
-									g_vecBoneTransfrom[CTest::RIGHTARM] = (CTransform*)g_pBone->Find_Bone(BONE_LAYER_PLAYER, Engine::KEY_BONE_RIGHTARM);
-									g_pBone->Setting_ParentBone(BONE_LAYER_PLAYER, Engine::KEY_BONE_SPINE, Engine::KEY_BONE_RIGHTARM);
-									cout << "RIGHTARM Bone Load " << index << endl;
+									g_pBone[iBoneIndex]->EraseBone(BONE_LAYER_PLAYER, Engine::KEY_BONE_RIGHTARM);
+									g_pBone[iBoneIndex]->Add_Bone(BONE_LAYER_PLAYER, Engine::KEY_BONE_RIGHTARM, *(TRANSFORMDESC*)pArray, arrBoneRadius);
+									g_vecBoneTransfrom[iBoneIndex][CTest::RIGHTARM] = ((CTransform*)g_pBone[iBoneIndex]->Find_Bone(BONE_LAYER_PLAYER, Engine::KEY_BONE_RIGHTARM));
+									g_pBone[iBoneIndex]->Setting_ParentBone(BONE_LAYER_PLAYER, Engine::KEY_BONE_SPINE, Engine::KEY_BONE_RIGHTARM);
+
 									break;
 								case CTest::LEFTELBOW:
-									g_pBone->EraseBone(BONE_LAYER_PLAYER, Engine::KEY_BONE_LEFTELBOW);
-									g_pBone->Add_Bone(BONE_LAYER_PLAYER, Engine::KEY_BONE_LEFTELBOW, *(TRANSFORMDESC*)pArray, arrBoneRadius);
-									g_vecBoneTransfrom[CTest::LEFTELBOW] = (CTransform*)g_pBone->Find_Bone(BONE_LAYER_PLAYER, Engine::KEY_BONE_LEFTELBOW);
-									g_pBone->Setting_ParentBone(BONE_LAYER_PLAYER, Engine::KEY_BONE_LEFTARM, Engine::KEY_BONE_LEFTELBOW);
-									cout << "LEFTELBOW BoneLoad " << index << endl;
+									g_pBone[iBoneIndex]->EraseBone(BONE_LAYER_PLAYER, Engine::KEY_BONE_LEFTELBOW);
+									g_pBone[iBoneIndex]->Add_Bone(BONE_LAYER_PLAYER, Engine::KEY_BONE_LEFTELBOW, *(TRANSFORMDESC*)pArray, arrBoneRadius);
+									g_vecBoneTransfrom[iBoneIndex][CTest::LEFTELBOW] = ((CTransform*)g_pBone[iBoneIndex]->Find_Bone(BONE_LAYER_PLAYER, Engine::KEY_BONE_LEFTELBOW));
+									g_pBone[iBoneIndex]->Setting_ParentBone(BONE_LAYER_PLAYER, Engine::KEY_BONE_LEFTARM, Engine::KEY_BONE_LEFTELBOW);
+
 									break;
 								case CTest::RIGHTELBOW:
-									g_pBone->EraseBone(BONE_LAYER_PLAYER, Engine::KEY_BONE_RIGHTELBOW);
-									g_pBone->Add_Bone(BONE_LAYER_PLAYER, Engine::KEY_BONE_RIGHTELBOW, *(TRANSFORMDESC*)pArray, arrBoneRadius);
-									g_vecBoneTransfrom[CTest::RIGHTELBOW] = (CTransform*)g_pBone->Find_Bone(BONE_LAYER_PLAYER, Engine::KEY_BONE_RIGHTELBOW);
-									g_pBone->Setting_ParentBone(BONE_LAYER_PLAYER, Engine::KEY_BONE_RIGHTARM, Engine::KEY_BONE_RIGHTELBOW);
-									cout << "RIGHTELBOW Bone Load " << index << endl;
+									g_pBone[iBoneIndex]->EraseBone(BONE_LAYER_PLAYER, Engine::KEY_BONE_RIGHTELBOW);
+									g_pBone[iBoneIndex]->Add_Bone(BONE_LAYER_PLAYER, Engine::KEY_BONE_RIGHTELBOW, *(TRANSFORMDESC*)pArray, arrBoneRadius);
+									g_vecBoneTransfrom[iBoneIndex][CTest::RIGHTELBOW] = ((CTransform*)g_pBone[iBoneIndex]->Find_Bone(BONE_LAYER_PLAYER, Engine::KEY_BONE_RIGHTELBOW));
+									g_pBone[iBoneIndex]->Setting_ParentBone(BONE_LAYER_PLAYER, Engine::KEY_BONE_RIGHTARM, Engine::KEY_BONE_RIGHTELBOW);
 									break;
 								case CTest::LEFTANKLE:
-									g_pBone->EraseBone(BONE_LAYER_PLAYER, Engine::KEY_BONE_LEFTANKLE);
-									g_pBone->Add_Bone(BONE_LAYER_PLAYER, Engine::KEY_BONE_LEFTANKLE, *(TRANSFORMDESC*)pArray, arrBoneRadius);
-									g_vecBoneTransfrom[CTest::LEFTANKLE] = (CTransform*)g_pBone->Find_Bone(BONE_LAYER_PLAYER, Engine::KEY_BONE_LEFTANKLE);
-									g_pBone->Setting_ParentBone(BONE_LAYER_PLAYER, Engine::KEY_BONE_LEFTLEG, Engine::KEY_BONE_LEFTANKLE);
-									cout << "LEFTANKLE Bone Load " << index << endl;
+									g_pBone[iBoneIndex]->EraseBone(BONE_LAYER_PLAYER, Engine::KEY_BONE_LEFTANKLE);
+									g_pBone[iBoneIndex]->Add_Bone(BONE_LAYER_PLAYER, Engine::KEY_BONE_LEFTANKLE, *(TRANSFORMDESC*)pArray, arrBoneRadius);
+									g_vecBoneTransfrom[iBoneIndex][CTest::LEFTANKLE] = ((CTransform*)g_pBone[iBoneIndex]->Find_Bone(BONE_LAYER_PLAYER, Engine::KEY_BONE_LEFTANKLE));
+									g_pBone[iBoneIndex]->Setting_ParentBone(BONE_LAYER_PLAYER, Engine::KEY_BONE_LEFTLEG, Engine::KEY_BONE_LEFTANKLE);
+
 									break;
 								case CTest::RIGHTANKLE:
-									g_pBone->EraseBone(BONE_LAYER_PLAYER, Engine::KEY_BONE_RIGHTANKLE);
-									g_pBone->Add_Bone(BONE_LAYER_PLAYER, Engine::KEY_BONE_RIGHTANKLE, *(TRANSFORMDESC*)pArray, arrBoneRadius);
-									g_vecBoneTransfrom[CTest::RIGHTANKLE] = (CTransform*)g_pBone->Find_Bone(BONE_LAYER_PLAYER, Engine::KEY_BONE_RIGHTANKLE);
-									g_pBone->Setting_ParentBone(BONE_LAYER_PLAYER, Engine::KEY_BONE_RIGHTLEG, Engine::KEY_BONE_RIGHTANKLE);
-									cout << "RIGHTANKLE Bone Load " << index << endl;
+									g_pBone[iBoneIndex]->EraseBone(BONE_LAYER_PLAYER, Engine::KEY_BONE_RIGHTANKLE);
+									g_pBone[iBoneIndex]->Add_Bone(BONE_LAYER_PLAYER, Engine::KEY_BONE_RIGHTANKLE, *(TRANSFORMDESC*)pArray, arrBoneRadius);
+									g_vecBoneTransfrom[iBoneIndex][CTest::RIGHTANKLE] = ((CTransform*)g_pBone[iBoneIndex]->Find_Bone(BONE_LAYER_PLAYER, Engine::KEY_BONE_RIGHTANKLE));
+									g_pBone[iBoneIndex]->Setting_ParentBone(BONE_LAYER_PLAYER, Engine::KEY_BONE_RIGHTLEG, Engine::KEY_BONE_RIGHTANKLE);
+									++iBoneIndex;
 									break;
 
 								}
+								++iDataIndex;
 								index--;
 								Safe_Delete(pTranformDesc);
 							}
+							//인덱스 증가 위치 헷갈리지 말것
 						}
-						++iDataIndex;
 						//cout << "[인덱스] " << index << endl;
-						if (iDataIndex == Len )
+						if (iDataIndex == Len)
 						{
+							cout << "뼈 파싱 완료" << endl;
 							iDataIndex = 0;
 							iDataCase = LEN_STEP1;
 							iCase = ANIMATION;
 							Len = 0;
-
 						}
 						break;
 					case ANIMATION:
@@ -432,27 +439,32 @@ public :
 								{
 								case CTest::TEST_STATE_IDLE:
 									g_vecAniInfo[CTest::TEST_STATE_IDLE] = *(CTest::TEST_STRUCT*)pArray;
+									cout << "인포로드 확인1 " << g_vecAniInfo[CTest::TEST_STATE_IDLE].uMotion << endl;
 									break;
 								case CTest::TEST_STATE_ATTACK:
-									g_vecAniInfo[CTest::TEST_STATE_ATTACK] = *pTestStruct;
+									g_vecAniInfo[CTest::TEST_STATE_ATTACK] = *(CTest::TEST_STRUCT*)pArray;
+									cout << "인포로드 확인2 " << g_vecAniInfo[CTest::TEST_STATE_ATTACK].uMotion << endl;
 									break;
 								case CTest::TEST_STATE_STUN:
-									g_vecAniInfo[CTest::TEST_STATE_STUN] = *pTestStruct;
+									g_vecAniInfo[CTest::TEST_STATE_STUN] = *(CTest::TEST_STRUCT*)pArray;
+									cout << "인포로드 확인3 " << g_vecAniInfo[CTest::TEST_STATE_STUN].uMotion << endl;
 									break;
 								case CTest::TEST_STATE_DIE:
-									g_vecAniInfo[CTest::TEST_STATE_DIE] = *pTestStruct;
+									g_vecAniInfo[CTest::TEST_STATE_DIE] = *(CTest::TEST_STRUCT*)pArray;
+									cout << "인포로드 확인4 " << g_vecAniInfo[CTest::TEST_STATE_DIE].uMotion << endl;
 									break;
 								}
-								++iDataIndex;
+								index--;
 								delete pTestStruct;
 							}
 						}
-
+						++iDataIndex;
 						if (iDataIndex == Len)
 						{
+							cout << "여기 들어옴" << endl;
 							iDataIndex = 0;
 							iDataCase = LEN_STEP1;
-							break;
+							return S_OK;
 						}
 						break;
 					}
@@ -463,7 +475,7 @@ public :
 
 		Safe_Delete_Array(ReadBuffer);
 
-		return S_OK;
+		return E_FAIL;
 	}
 };
 

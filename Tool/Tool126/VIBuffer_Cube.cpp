@@ -29,28 +29,28 @@ HRESULT CVIBuffer_Cube::NativeConstruct_Prototype()
 
 	m_pVB->Lock(0, 0, (void**)&pVertices, 0);
 
-	pVertices[0].vPosition = _float3(-0.05f, 0.5f, -0.05f);
+	pVertices[0].vPosition = _float3(-0.05f, 0.05f, -0.05f);
 	pVertices[0].vTexUV = _float2(0.f, 0.f);
 
-	pVertices[1].vPosition = _float3(0.05f, 0.5f, -0.05f);
+	pVertices[1].vPosition = _float3(0.05f, 0.05f, -0.05f);
 	pVertices[1].vTexUV = _float2(1.f, 0.f);
 
-	pVertices[2].vPosition = _float3(0.05f, -0.5f, -0.05f);
+	pVertices[2].vPosition = _float3(0.05f, -0.05f, -0.05f);
 	pVertices[2].vTexUV = _float2(1.f, 1.f);
 
-	pVertices[3].vPosition = _float3(-0.05f, -0.5f, -0.05f);
+	pVertices[3].vPosition = _float3(-0.05f, -0.05f, -0.05f);
 	pVertices[3].vTexUV = _float2(0.f, 1.f);
 
-	pVertices[4].vPosition = _float3(-0.05f, 0.5f, 0.05f);
+	pVertices[4].vPosition = _float3(-0.05f, 0.05f, 0.05f);
 	pVertices[4].vTexUV = _float2(1.f, 0.f);
 
-	pVertices[5].vPosition = _float3(0.05f, 0.5f, 0.05f);
+	pVertices[5].vPosition = _float3(0.05f, 0.05f, 0.05f);
 	pVertices[5].vTexUV = _float2(0.f, 0.f);
 
-	pVertices[6].vPosition = _float3(0.05f, -0.5f, 0.05f);
+	pVertices[6].vPosition = _float3(0.05f, -0.05f, 0.05f);
 	pVertices[6].vTexUV = _float2(0.f, 1.f);
 
-	pVertices[7].vPosition = _float3(-0.05f, -0.5f, 0.05f);
+	pVertices[7].vPosition = _float3(-0.05f, -0.05f, 0.05f);
 	pVertices[7].vTexUV = _float2(1.f, 1.f);
 
 	m_pVB->Unlock();

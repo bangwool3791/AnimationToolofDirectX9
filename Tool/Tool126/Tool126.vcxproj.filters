@@ -153,9 +153,6 @@
     <ClInclude Include="ChildForm.h">
       <Filter>00. MainFrm</Filter>
     </ClInclude>
-    <ClInclude Include="Input_Device.h">
-      <Filter>03. Engine\Include</Filter>
-    </ClInclude>
     <ClInclude Include="Parser.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -250,9 +247,6 @@
     </ClCompile>
     <ClCompile Include="ChildForm.cpp">
       <Filter>00. MainFrm</Filter>
-    </ClCompile>
-    <ClCompile Include="Input_Device.cpp">
-      <Filter>03. Engine\Source</Filter>
     </ClCompile>
     <ClCompile Include="Parser.cpp">
       <Filter>소스 파일</Filter>

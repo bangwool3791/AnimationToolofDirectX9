@@ -51,7 +51,7 @@ public :
 private :
 	unsigned int m_iBoneIndex = 0;
 	unsigned int m_iAniIndex = 0;
-	unsigned int m_iAniInfoIndex = 0;
+	unsigned int m_iAniInfoIndex;
 public:
 #ifdef AFX_DESIGN_TIME
 	enum { IDD = IDD_DIALOG1 };
@@ -95,7 +95,6 @@ protected:
 	DECLARE_MESSAGE_MAP()
 private :
 	CTest::TEST_STATE* m_eAniState = NULL;
-	CTest* m_pTest = NULL;
 	CTool126View::THREAD_DESC* m_stThreadDesc;
 public:
 	virtual void OnInitialUpdate();
@@ -104,7 +103,6 @@ public:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	CComboBox m_cbBone;
 	afx_msg void OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimized);
-	afx_msg void OnCbnSelchangeCombo1();
 	afx_msg void OnTvnSelchangedBoneTree(NMHDR *pNMHDR, LRESULT *pResult);
 
 	CEdit m_tbRootBonePosX;
@@ -141,7 +139,6 @@ public:
 	afx_msg void OnEnChangeBoneAngle();
 	afx_msg void OnDeltaposBoneAngle(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnCbnEditupdateRootBoneAxis();
-	afx_msg void OnCbnDropdownRootBoneAxis();
 	//Animation Area
 	CTreeCtrl m_treeAni;
 	afx_msg void OnTvnSelchangedAnimationTree(NMHDR *pNMHDR, LRESULT *pResult);
@@ -163,6 +160,9 @@ public:
 	_float m_fTop = 0.f;
 	_float m_fBottom = 0.f;
 	_float m_fPos = 0.f;
+
+	CString m_strBoneSpeed;
+	_float m_fBoneSpeed = 0.f;
 	afx_msg void OnEnChangeAnimationWidth();
 	afx_msg void OnEnChangeAnimationPos();
 	afx_msg void OnDeltaposAnimationWidth(NMHDR *pNMHDR, LRESULT *pResult);
@@ -228,6 +228,18 @@ public:
 	CButton m_checkBoxRightElbow;
 	CButton m_checkBoxLeftAnkle;
 	CButton m_checkBoxRightAnkle;
+
+	float   m_fWidth = 0.f;
+	float   m_fHegiht = 0.f;
+	afx_msg void OnBnClickedClearButton();
+	afx_msg void OnBnClickedClearButton2();
+	afx_msg void OnBnClickedClearButton3();
+	afx_msg void Rot_Spd_Change();
+	afx_msg void OnDeltaposAnimationMinAngle2(NMHDR *pNMHDR, LRESULT *pResult);
+	CEdit m_tbRotSpeed;
+	CSpinButtonCtrl m_spinRotSpd;
+	afx_msg void OnCbnDblclkRootBoneAxis();
+	afx_msg void OnCbnSelchangeRootBoneAxis();
 };
 
 

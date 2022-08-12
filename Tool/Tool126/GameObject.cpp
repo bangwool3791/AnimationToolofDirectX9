@@ -55,6 +55,5 @@ CGameObject* CGameObject::Clone(void* pArg)
 void CGameObject::Free()
 {
 	cout << "CGameObject Free" << endl;
-	if(m_pGraphicDev)
 	Safe_Release(m_pGraphicDev);
 }

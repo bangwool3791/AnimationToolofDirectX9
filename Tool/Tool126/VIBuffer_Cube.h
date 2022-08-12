@@ -14,7 +14,6 @@ public:
 public:
 	virtual HRESULT NativeConstruct_Prototype();
 	virtual HRESULT NativeConstruct(void* pArg);
-
 public:
 	void Set_VerticesWidth(void* pArg)
 	{

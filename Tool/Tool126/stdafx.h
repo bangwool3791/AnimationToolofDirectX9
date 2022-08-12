@@ -56,7 +56,6 @@ extern HWND g_hWnd;
 extern HINSTANCE g_hInst;
 extern const int g_WINCX;
 extern const int g_WINCY;
-extern class CBone* g_pBone;
 
 #include "Define.h"
 

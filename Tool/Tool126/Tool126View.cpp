@@ -31,8 +31,9 @@ HINSTANCE g_hInst;
 CRITICAL_SECTION g_CriticalSection;
 const int g_WINCX = 1280;
 const int g_WINCY = 720;
-CBone * g_pBone;
-extern vector<CTransform*> g_vecBoneTransfrom;
+extern vector<vector<CTransform*>> g_vecBoneTransfrom;
+extern unsigned int g_iAniInfoIndex;
+extern CTest* g_pTest;
 // CTool126View
 IMPLEMENT_DYNCREATE(CTool126View, CView)
 
@@ -73,8 +74,8 @@ _uint APIENTRY ToolEntryFunction(void* pArg)
 		ThreadDesc->fTimeAcc += ThreadDesc->pGameInstance->Compute_TimeDelta(TEXT("Timer_Default"));
 		if (ThreadDesc->fTimeAcc > 1.f / 60.0f)
 		{
-			if (1000.f < ThreadDesc->fTimeAcc)
-				continue;
+			//if (1000.f < ThreadDesc->fTimeAcc)
+			//	continue;
 
 			ThreadDesc->fTime60 = ThreadDesc->pGameInstance->Compute_TimeDelta(TEXT("Timer_60"));
 			ThreadDesc->pGameInstance->Tick_Engine(ThreadDesc->fTime60);
@@ -188,7 +189,7 @@ void CTool126View::OnInitialUpdate()
 	m_hThread = (HANDLE)_beginthreadex(nullptr, 0, ToolEntryFunction, &m_ThreadDesc, 0, nullptr);
 	if (0 == m_hThread)
 		return;
-
+	Engine::Safe_Release(m_pGameInstance);
 }
 
 
@@ -200,9 +201,6 @@ void CTool126View::OnDraw(CDC* pDC)
 		return;
 
 	static float fAcc = 0.f;
-
-	if (!m_pRootTransForm)
-		m_pRootTransForm = (CTransform*)g_pBone->Find_Bone(BONE_LAYER_PLAYER, Engine::KEY_BONE_ROOT);
 
 	m_pGameInstance->Render_Engine();
 	m_pGameInstance->RenderBegin();
@@ -263,12 +261,12 @@ void CTool126View::OnDestroy()
 
 	CloseHandle(m_hThread);
 
+	g_pTest->Free();
 	CView::OnDestroy();
 
 	Engine::Safe_Release(m_ThreadDesc.pGameInstance);
 	Engine::Safe_Release(m_pRenderer);
-	Engine::Safe_Release(m_pGameInstance);
-	CGameInstance::Destroy_Instance();
+	CGameInstance::Release_Engine();
 }
 void CTool126View::OnMouseMove(UINT nFlags, CPoint point)
 {
@@ -276,11 +274,18 @@ void CTool126View::OnMouseMove(UINT nFlags, CPoint point)
 
 	if (GetAsyncKeyState(VK_LBUTTON) < 0)
 	{
-		g_vecBoneTransfrom[CTest::ROOT]->Turn(_float3(0.f, 1.f, 0.f), (point.x - m_MemoPoint.x) * 0.03f);
-		g_vecBoneTransfrom[CTest::ROOT]->Turn(g_vecBoneTransfrom[CTest::ROOT]->Get_State(STATE_RIGHT), (point.y - m_MemoPoint.y) * 0.03f);
+		g_vecBoneTransfrom[g_pTest->Get_State()][CTest::ROOT]->Turn(_float3(0.f, 1.f, 0.f), (point.x - m_MemoPoint.x) * 0.03f);
+		g_vecBoneTransfrom[g_pTest->Get_State()][CTest::ROOT]->Turn(g_vecBoneTransfrom[g_pTest->Get_State()][CTest::ROOT]->Get_State(STATE_RIGHT), (point.y - m_MemoPoint.y) * 0.03f);
 
 		m_MemoPoint.x += point.x - m_MemoPoint.x;
 		m_MemoPoint.y += point.y - m_MemoPoint.y;
+	}
+
+	if (GetAsyncKeyState(VK_RBUTTON) < 0)
+	{
+		g_vecBoneTransfrom[g_pTest->Get_State()][CTest::ROOT]->Turn(_float3(0.f, 1.f, 0.f), (point.x - m_MemoPoint.x) * 0.03f);
+
+		m_MemoPoint.x += point.x - m_MemoPoint.x;
 	}
 }
 
@@ -291,4 +296,8 @@ void CTool126View::OnLButtonDown(UINT nFlags, CPoint point)
 	CView::OnLButtonDown(nFlags, point);
 
 	m_MemoPoint = point;
+}
+
+void CTool126View::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
+{
 }

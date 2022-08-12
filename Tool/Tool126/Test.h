@@ -79,6 +79,7 @@ public :
 private :
 	TEST_STATE m_eAniState = TEST_STATE_IDLE;
 	TEST_STATE m_eAniMemoState = TEST_STATE_IDLE;
+	unsigned int m_iAniInfoIndex = 0;
 public :
 	void Clear_Flag(TEST_STATE eState, _float _fDeltaTime);
 public:
@@ -100,8 +101,6 @@ public:
 protected:
 	virtual HRESULT NativeConstruct_Prototype() override;
 	virtual HRESULT NativeConstruct(void* pArg) override;
-private :
-	void Set_Animation(ANIMATION_STATE eState, _float3& vAxis, _float fDir, CTransform* _pTransForm);
 
 private:
 	HRESULT SetUp_Components();
@@ -152,8 +151,19 @@ private:
 	//Right Ankle
 	CVIBuffer_Cube* m_pAniRightAnkleCube = NULL;
 private :
-	CBone * m_pBone = NULL;
-
+	vector<CBone *> m_pBone;
+public :
+	void Set_ClearFlag()
+	{
+		m_bClear = true;
+	}
+private:
+	_bool m_bClear = false;
+public:
+	int Get_State()
+	{
+		return m_eAniState;
+	}
 public :
 		void Mouse_X(_float _fDeltaTime, _float _MouseMove)
 		{

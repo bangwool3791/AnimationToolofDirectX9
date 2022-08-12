@@ -59,6 +59,18 @@ namespace Engine
 	}
 
 	template <typename T>
+	FORCEINLINE uint64_t Check_Ref(T& pInstance)
+	{
+		uint64_t dwRefCnt = 0;
+		if (pInstance)
+		{
+			dwRefCnt = pInstance->Return_Ref();
+		}
+
+		return dwRefCnt;
+	}
+
+	template <typename T>
 	void Safe_Delete(T& pPointer)
 	{
 		if (pPointer)

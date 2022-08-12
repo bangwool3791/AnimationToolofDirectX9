@@ -82,7 +82,7 @@ public:
 
 				Engine::_float4x4			ViewMatrix, ProjMatrix;
 
-				D3DXMatrixLookAtLH(&ViewMatrix, &D3DXVECTOR3(0.f, 2.f, -10.f), &D3DXVECTOR3(0.f, 0.f, 0.f), &D3DXVECTOR3(0.f, 1.f, 0.f));
+				D3DXMatrixLookAtLH(&ViewMatrix, &D3DXVECTOR3(0.f, 0.0f, -5.f), &D3DXVECTOR3(0.f, 0.f, 0.f), &D3DXVECTOR3(0.f, 1.f, 0.f));
 				m_pGraphicDev->SetTransform(D3DTS_VIEW, &ViewMatrix);
 
 				D3DXMatrixPerspectiveFovLH(&ProjMatrix, D3DXToRadian(60.f), 1280 / (_float)700, 0.2f, 300.f);
@@ -267,18 +267,18 @@ public:
 		return S_OK;
 	}
 
-	HRESULT Clear_BoneAngle(BONE_LAYER _Layer)
-	{
-		MAP_BONE::iterator Begin = m_mapBone[_Layer].begin();
-		MAP_BONE::iterator End = m_mapBone[_Layer].end();
+	//HRESULT Clear_BoneAngle(BONE_LAYER _Layer)
+	//{
+	//	MAP_BONE::iterator Begin = m_mapBone[_Layer].begin();
+	//	MAP_BONE::iterator End = m_mapBone[_Layer].end();
 
-		while (Begin != End)
-		{
-			Begin->second->Init_LocalAngle();
-			++Begin;
-		}
-		return S_OK;
-	}
+	//	while (Begin != End)
+	//	{
+	//		Begin->second->Init_LocalMatrix();
+	//		++Begin;
+	//	}
+	//	return S_OK;
+	//}
 public:
 	static CComponent * Create(LPDIRECT3DDEVICE9 pGraphicDevice)
 	{
@@ -310,7 +310,7 @@ public:
 		{
 			for (auto& elem : m_mapBone[i])
 			{
-				MSGBOX(elem.second->Get_Tag());
+				cout << "»èÁ¦ " << (elem.second->Get_Tag()) << endl;
 
 				Safe_Release(elem.second);
 			}

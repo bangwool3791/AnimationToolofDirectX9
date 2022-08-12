@@ -1,5 +1,20 @@
+#include <d3d9.h>
+
 namespace Engine
 {
+	typedef struct tagVertexPositionTexture
+	{
+		float x, y, z;
+		float u, v;
+		static const DWORD FVF;
+		tagVertexPositionTexture() {}
+		tagVertexPositionTexture(float _x, float _y, float _z, float _u, float _v)
+		{
+			x = _x; y = _y; z = _z;
+			u = _u; v = _v;
+		}
+	}VertexPositionTexture;
+
 	typedef struct tagVertex_Texture
 	{
 		D3DXVECTOR3		vPosition;
@@ -43,6 +58,7 @@ namespace Engine
 		_float		fLocalAngle = 0.f;//비저장 데이터
 		_float3		vLocalPos;//비저장데이터
 		_float3     vAxis = D3DXVECTOR3{ 1.f, 0.f, 0.f };//비저장데이터
+		_float		fInitAngle = 0.f;
 		_float		fSpeedPerSec = 0.f;
 		_float		fRotationPerSec = 0.f;
 		_float4x4   LocalMatrix;

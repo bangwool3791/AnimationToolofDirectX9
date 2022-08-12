@@ -16,6 +16,11 @@ public:
 		return ++m_dwRefCnt;
 	}
 
+	FORCEINLINE unsigned long CBase::Return_Ref()
+	{
+		return m_dwRefCnt;
+
+	}
 	FORCEINLINE unsigned long CBase::Release()
 	{
 		if (0 == m_dwRefCnt)

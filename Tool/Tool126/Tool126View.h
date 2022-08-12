@@ -78,6 +78,7 @@ public:
 	virtual void OnInitialUpdate();
 	void CTool126View::OnMouseMove(UINT nFlags, CPoint point);
 	void CTool126View::OnLButtonDown(UINT nFlags, CPoint point);
+	void CTool126View::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
 	afx_msg void OnDestroy();
 };
 

@@ -1,0 +1,74 @@
+﻿1>------ Build started: Project: Tool126, Configuration: Debug x64 ------
+1>  Transform.cpp
+1>c:\users\gusha\onedrive\desktop\쥬신\5개월차\이현학\zip\220427_애니메이션툴_완성\tool\tool126\engine_struct.h(16): warning C4091: 'typedef ': ignored on left of 'Engine::tagVertexPositionTexture' when no variable is declared
+1>  Tool126View.cpp
+1>c:\users\gusha\onedrive\desktop\쥬신\5개월차\이현학\zip\220427_애니메이션툴_완성\tool\tool126\engine_struct.h(16): warning C4091: 'typedef ': ignored on left of 'Engine::tagVertexPositionTexture' when no variable is declared
+1>c:\users\gusha\onedrive\desktop\쥬신\5개월차\이현학\zip\220427_애니메이션툴_완성\tool\tool126\childform.h(72): warning C4244: 'initializing': conversion from 'wchar_t' to 'char', possible loss of data
+1>c:\users\gusha\onedrive\desktop\쥬신\5개월차\이현학\zip\220427_애니메이션툴_완성\tool\tool126\tool126view.cpp(26): warning C4005: 'new': macro redefinition
+1>  c:\users\gusha\onedrive\desktop\쥬신\5개월차\이현학\zip\220427_애니메이션툴_완성\tool\tool126\engine_defines.h(28): note: see previous definition of 'new'
+1>c:\users\gusha\onedrive\desktop\쥬신\5개월차\이현학\zip\220427_애니메이션툴_완성\tool\tool126\tool126view.cpp(104): warning C4244: '=': conversion from 'float' to 'LONG', possible loss of data
+1>c:\users\gusha\onedrive\desktop\쥬신\5개월차\이현학\zip\220427_애니메이션툴_완성\tool\tool126\tool126view.cpp(105): warning C4244: '=': conversion from 'float' to 'LONG', possible loss of data
+1>  Tool126.cpp
+1>c:\users\gusha\onedrive\desktop\쥬신\5개월차\이현학\zip\220427_애니메이션툴_완성\tool\tool126\engine_struct.h(16): warning C4091: 'typedef ': ignored on left of 'Engine::tagVertexPositionTexture' when no variable is declared
+1>c:\users\gusha\onedrive\desktop\쥬신\5개월차\이현학\zip\220427_애니메이션툴_완성\tool\tool126\childform.h(72): warning C4244: 'initializing': conversion from 'wchar_t' to 'char', possible loss of data
+1>c:\users\gusha\onedrive\desktop\쥬신\5개월차\이현학\zip\220427_애니메이션툴_완성\tool\tool126\tool126.cpp(16): warning C4005: 'new': macro redefinition
+1>  c:\users\gusha\onedrive\desktop\쥬신\5개월차\이현학\zip\220427_애니메이션툴_완성\tool\tool126\engine_defines.h(28): note: see previous definition of 'new'
+1>  Test.cpp
+1>c:\users\gusha\onedrive\desktop\쥬신\5개월차\이현학\zip\220427_애니메이션툴_완성\tool\tool126\engine_struct.h(16): warning C4091: 'typedef ': ignored on left of 'Engine::tagVertexPositionTexture' when no variable is declared
+1>c:\users\gusha\onedrive\desktop\쥬신\5개월차\이현학\zip\220427_애니메이션툴_완성\tool\tool126\test.cpp(458): warning C4305: '=': truncation from 'double' to 'Engine::_float'
+1>  Parser.cpp
+1>c:\users\gusha\onedrive\desktop\쥬신\5개월차\이현학\zip\220427_애니메이션툴_완성\tool\tool126\engine_struct.h(16): warning C4091: 'typedef ': ignored on left of 'Engine::tagVertexPositionTexture' when no variable is declared
+1>c:\users\gusha\onedrive\desktop\쥬신\5개월차\이현학\zip\220427_애니메이션툴_완성\tool\tool126\childform.h(72): warning C4244: 'initializing': conversion from 'wchar_t' to 'char', possible loss of data
+1>c:\users\gusha\onedrive\desktop\쥬신\5개월차\이현학\zip\220427_애니메이션툴_완성\tool\tool126\parser.h(172): warning C4018: '<': signed/unsigned mismatch
+1>c:\users\gusha\onedrive\desktop\쥬신\5개월차\이현학\zip\220427_애니메이션툴_완성\tool\tool126\parser.h(202): warning C4018: '<': signed/unsigned mismatch
+1>  MainFrm.cpp
+1>c:\users\gusha\onedrive\desktop\쥬신\5개월차\이현학\zip\220427_애니메이션툴_완성\tool\tool126\engine_struct.h(16): warning C4091: 'typedef ': ignored on left of 'Engine::tagVertexPositionTexture' when no variable is declared
+1>c:\users\gusha\onedrive\desktop\쥬신\5개월차\이현학\zip\220427_애니메이션툴_완성\tool\tool126\childform.h(72): warning C4244: 'initializing': conversion from 'wchar_t' to 'char', possible loss of data
+1>c:\users\gusha\onedrive\desktop\쥬신\5개월차\이현학\zip\220427_애니메이션툴_완성\tool\tool126\mainfrm.cpp(12): warning C4005: 'new': macro redefinition
+1>  c:\users\gusha\onedrive\desktop\쥬신\5개월차\이현학\zip\220427_애니메이션툴_완성\tool\tool126\engine_defines.h(28): note: see previous definition of 'new'
+1>  Loader.cpp
+1>c:\users\gusha\onedrive\desktop\쥬신\5개월차\이현학\zip\220427_애니메이션툴_완성\tool\tool126\engine_struct.h(16): warning C4091: 'typedef ': ignored on left of 'Engine::tagVertexPositionTexture' when no variable is declared
+1>  Level_Loading.cpp
+1>c:\users\gusha\onedrive\desktop\쥬신\5개월차\이현학\zip\220427_애니메이션툴_완성\tool\tool126\engine_struct.h(16): warning C4091: 'typedef ': ignored on left of 'Engine::tagVertexPositionTexture' when no variable is declared
+1>  Level_GamePlay.cpp
+1>c:\users\gusha\onedrive\desktop\쥬신\5개월차\이현학\zip\220427_애니메이션툴_완성\tool\tool126\engine_struct.h(16): warning C4091: 'typedef ': ignored on left of 'Engine::tagVertexPositionTexture' when no variable is declared
+1>  LevelManager.cpp
+1>c:\users\gusha\onedrive\desktop\쥬신\5개월차\이현학\zip\220427_애니메이션툴_완성\tool\tool126\engine_struct.h(16): warning C4091: 'typedef ': ignored on left of 'Engine::tagVertexPositionTexture' when no variable is declared
+1>  GameObject.cpp
+1>c:\users\gusha\onedrive\desktop\쥬신\5개월차\이현학\zip\220427_애니메이션툴_완성\tool\tool126\engine_struct.h(16): warning C4091: 'typedef ': ignored on left of 'Engine::tagVertexPositionTexture' when no variable is declared
+1>  GameInstance.cpp
+1>c:\users\gusha\onedrive\desktop\쥬신\5개월차\이현학\zip\220427_애니메이션툴_완성\tool\tool126\engine_struct.h(16): warning C4091: 'typedef ': ignored on left of 'Engine::tagVertexPositionTexture' when no variable is declared
+1>  ComponentManager.cpp
+1>c:\users\gusha\onedrive\desktop\쥬신\5개월차\이현학\zip\220427_애니메이션툴_완성\tool\tool126\engine_struct.h(16): warning C4091: 'typedef ': ignored on left of 'Engine::tagVertexPositionTexture' when no variable is declared
+1>  ChildForm.cpp
+1>c:\users\gusha\onedrive\desktop\쥬신\5개월차\이현학\zip\220427_애니메이션툴_완성\tool\tool126\engine_struct.h(16): warning C4091: 'typedef ': ignored on left of 'Engine::tagVertexPositionTexture' when no variable is declared
+1>c:\users\gusha\onedrive\desktop\쥬신\5개월차\이현학\zip\220427_애니메이션툴_완성\tool\tool126\childform.h(72): warning C4244: 'initializing': conversion from 'wchar_t' to 'char', possible loss of data
+1>c:\users\gusha\onedrive\desktop\쥬신\5개월차\이현학\zip\220427_애니메이션툴_완성\tool\tool126\childform.cpp(14): warning C4005: 'new': macro redefinition
+1>  c:\users\gusha\onedrive\desktop\쥬신\5개월차\이현학\zip\220427_애니메이션툴_완성\tool\tool126\engine_defines.h(28): note: see previous definition of 'new'
+1>c:\users\gusha\onedrive\desktop\쥬신\5개월차\이현학\zip\220427_애니메이션툴_완성\tool\tool126\parser.h(172): warning C4018: '<': signed/unsigned mismatch
+1>c:\users\gusha\onedrive\desktop\쥬신\5개월차\이현학\zip\220427_애니메이션툴_완성\tool\tool126\parser.h(202): warning C4018: '<': signed/unsigned mismatch
+1>c:\users\gusha\onedrive\desktop\쥬신\5개월차\이현학\zip\220427_애니메이션툴_완성\tool\tool126\childform.cpp(362): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+1>c:\users\gusha\onedrive\desktop\쥬신\5개월차\이현학\zip\220427_애니메이션툴_완성\tool\tool126\childform.cpp(378): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+1>c:\users\gusha\onedrive\desktop\쥬신\5개월차\이현학\zip\220427_애니메이션툴_완성\tool\tool126\childform.cpp(394): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+1>c:\users\gusha\onedrive\desktop\쥬신\5개월차\이현학\zip\220427_애니메이션툴_완성\tool\tool126\childform.cpp(454): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+1>c:\users\gusha\onedrive\desktop\쥬신\5개월차\이현학\zip\220427_애니메이션툴_완성\tool\tool126\childform.cpp(465): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+1>c:\users\gusha\onedrive\desktop\쥬신\5개월차\이현학\zip\220427_애니메이션툴_완성\tool\tool126\childform.cpp(476): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+1>c:\users\gusha\onedrive\desktop\쥬신\5개월차\이현학\zip\220427_애니메이션툴_완성\tool\tool126\childform.cpp(487): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+1>c:\users\gusha\onedrive\desktop\쥬신\5개월차\이현학\zip\220427_애니메이션툴_완성\tool\tool126\childform.cpp(497): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+1>c:\users\gusha\onedrive\desktop\쥬신\5개월차\이현학\zip\220427_애니메이션툴_완성\tool\tool126\childform.cpp(598): warning C4244: '=': conversion from 'double' to 'Engine::_float', possible loss of data
+1>c:\users\gusha\onedrive\desktop\쥬신\5개월차\이현학\zip\220427_애니메이션툴_완성\tool\tool126\childform.cpp(607): warning C4244: '=': conversion from 'double' to 'Engine::_float', possible loss of data
+1>c:\users\gusha\onedrive\desktop\쥬신\5개월차\이현학\zip\220427_애니메이션툴_완성\tool\tool126\childform.cpp(626): warning C4244: '=': conversion from 'double' to 'Engine::_float', possible loss of data
+1>c:\users\gusha\onedrive\desktop\쥬신\5개월차\이현학\zip\220427_애니메이션툴_완성\tool\tool126\childform.cpp(637): warning C4244: '=': conversion from 'double' to 'Engine::_float', possible loss of data
+1>c:\users\gusha\onedrive\desktop\쥬신\5개월차\이현학\zip\220427_애니메이션툴_완성\tool\tool126\childform.cpp(657): warning C4244: '=': conversion from 'double' to 'Engine::_float', possible loss of data
+1>c:\users\gusha\onedrive\desktop\쥬신\5개월차\이현학\zip\220427_애니메이션툴_완성\tool\tool126\childform.cpp(668): warning C4244: '=': conversion from 'double' to 'Engine::_float', possible loss of data
+1>c:\users\gusha\onedrive\desktop\쥬신\5개월차\이현학\zip\220427_애니메이션툴_완성\tool\tool126\childform.cpp(687): warning C4244: '=': conversion from 'double' to 'Engine::_float', possible loss of data
+1>c:\users\gusha\onedrive\desktop\쥬신\5개월차\이현학\zip\220427_애니메이션툴_완성\tool\tool126\childform.cpp(697): warning C4244: '=': conversion from 'double' to 'Engine::_float', possible loss of data
+1>c:\users\gusha\onedrive\desktop\쥬신\5개월차\이현학\zip\220427_애니메이션툴_완성\tool\tool126\childform.cpp(904): warning C4244: '=': conversion from 'double' to 'Engine::_float', possible loss of data
+1>c:\users\gusha\onedrive\desktop\쥬신\5개월차\이현학\zip\220427_애니메이션툴_완성\tool\tool126\childform.cpp(915): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+1>c:\users\gusha\onedrive\desktop\쥬신\5개월차\이현학\zip\220427_애니메이션툴_완성\tool\tool126\childform.cpp(933): warning C4244: '=': conversion from 'double' to 'Engine::_float', possible loss of data
+1>c:\users\gusha\onedrive\desktop\쥬신\5개월차\이현학\zip\220427_애니메이션툴_완성\tool\tool126\childform.cpp(945): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+1>  Camera.cpp
+1>c:\users\gusha\onedrive\desktop\쥬신\5개월차\이현학\zip\220427_애니메이션툴_완성\tool\tool126\engine_struct.h(16): warning C4091: 'typedef ': ignored on left of 'Engine::tagVertexPositionTexture' when no variable is declared
+1>  Bone.cpp
+1>c:\users\gusha\onedrive\desktop\쥬신\5개월차\이현학\zip\220427_애니메이션툴_완성\tool\tool126\engine_struct.h(16): warning C4091: 'typedef ': ignored on left of 'Engine::tagVertexPositionTexture' when no variable is declared
+1>  Generating Code...

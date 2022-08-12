@@ -44,14 +44,19 @@
 #define IDC_RADIO2                      1023
 #define CHECK_ROOT                      1023
 #define IDC_RADIO3                      1024
+#define IDC_THREAD_BUTTON2              1024
+#define IDC_CLEAR_BUTTON                1024
 #define IDC_RADIO4                      1025
 #define IDC_SAVE_BUTTON                 1025
 #define IDC_RADIO5                      1026
+#define IDC_CLEAR_BUTTON2               1026
 #define IDC_RADIO6                      1027
 #define IDC_SAVE_BUTTON2                1027
 #define IDC_LOAD_BUTTON                 1027
 #define IDC_RADIO7                      1028
+#define IDC_CLEAR_BUTTON3               1028
 #define IDC_RADIO8                      1029
+#define SPIN_BONE_ANGLE2                1029
 #define IDC_RADIO9                      1030
 #define IDC_RADIO10                     1031
 #define RADIO_ANI_AXIS_1                1037
@@ -75,6 +80,9 @@
 #define CHECK_RIGHTELBOW                1054
 #define CHECK_LEFTANKLE                 1055
 #define CHECK_RIGHTANKLE                1056
+#define SPIN_ANIMATION_MIN_ANGLE2       1057
+#define EIDT__ANIMATION_MIN_ANGLE2      1058
+#define EIDT__ANIMATION_ROT_SPD         1058
 
 // Next default values for new objects
 // 

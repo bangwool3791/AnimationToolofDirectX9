@@ -8,7 +8,6 @@
 extern CRITICAL_SECTION g_CriticalSection;
 #include "ChildForm.h"
 #include "MainFrm.h"
-
 // CChildForm
 
 #ifdef _DEBUG
@@ -19,22 +18,22 @@ IMPLEMENT_DYNCREATE(CChildForm, CFormView)
 
 #include "Test.h"
 #include "Parser.h"
-extern vector<CTransform*> g_vecBoneTransfrom;
+
+extern vector<vector<CTransform*>> g_vecBoneTransfrom;
 extern vector<CVIBuffer_Cube*> g_vecAniCube;
 extern vector<CTest::TEST_STRUCT> g_vecAniInfo;
 extern CTest* g_pTest;
-
 CChildForm::CChildForm()
 	: CFormView(IDD_DIALOG1)
 	, m_bAniAxis(FALSE)
 	, m_bRadioDir(FALSE)
 {
 	ZeroMemory(&m_vBoneLocalAxis, sizeof(D3DXVECTOR3));
+	m_vBoneLocalAxis = D3DXVECTOR3(1.f, 0.f, 0.f);
 }
 
 CChildForm::~CChildForm()
 {
-	Safe_Release(m_pTest);
 }
 
 void CChildForm::DoDataExchange(CDataExchange* pDX)
@@ -62,22 +61,22 @@ void CChildForm::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, SPIN_ROOT_BONE_POS_Z, m_SpinRootBonePosZ);
 
 	m_tbRootBonePosX.SetWindowTextW(TEXT("0.0"));
-	m_SpinRootBonePosX.SetRange(-100, 100);
+	m_SpinRootBonePosX.SetRange(-1000, 1000);
 	m_SpinRootBonePosX.SetPos(0);
 
 	m_tbRootBonePosY.SetWindowTextW(TEXT("0.0"));
-	m_SpinRootBonePosY.SetRange(-100, 100);
+	m_SpinRootBonePosY.SetRange(-1000, 1000);
 	m_SpinRootBonePosY.SetPos(0);
 
 	m_tbRootBonePosZ.SetWindowTextW(TEXT("0.0"));
-	m_SpinRootBonePosZ.SetRange(-100, 100);
+	m_SpinRootBonePosZ.SetRange(-1000, 1000);
 	m_SpinRootBonePosZ.SetPos(0);
 
 	DDX_Control(pDX, CB_ROOT_BONE_AXIS, cb_boneAxis);
 	DDX_Control(pDX, EDIT_BONE_ANGLE, m_tbBoneAngle);
 	DDX_Control(pDX, SPIN_BONE_ANGLE, m_SpinBoneAngle);
 	m_tbBoneAngle.SetWindowTextW(TEXT("0.0"));
-	m_SpinBoneAngle.SetRange(-100, 100);
+	m_SpinBoneAngle.SetRange(-1000, 1000);
 	m_SpinBoneAngle.SetPos(0);
 
 	cb_boneAxis.InsertString(0, TEXT("X"));
@@ -90,10 +89,10 @@ void CChildForm::DoDataExchange(CDataExchange* pDX)
 
 	m_treeAni.InsertItem(KEY_ANI_HEAD);
 	m_treeAni.InsertItem(KEY_ANI_BODY);
-	m_treeAni.InsertItem(KEY_ANI_LEFTARM);
-	m_treeAni.InsertItem(KEY_ANI_RIGHTARM);
 	m_treeAni.InsertItem(KEY_ANI_LEFTLEG);
 	m_treeAni.InsertItem(KEY_ANI_RIGHTLEG);
+	m_treeAni.InsertItem(KEY_ANI_LEFTARM);
+	m_treeAni.InsertItem(KEY_ANI_RIGHTARM);
 	m_treeAni.InsertItem(KEY_ANI_LEFTELBOW);
 	m_treeAni.InsertItem(KEY_ANI_RIGHTELBOW);
 	m_treeAni.InsertItem(KEY_ANI_LEFTANKLE);
@@ -116,13 +115,13 @@ void CChildForm::DoDataExchange(CDataExchange* pDX)
 	m_tbAniBottom.SetWindowTextW(TEXT("0.0"));
 	m_tbAniPos.SetWindowTextW(TEXT("0.0"));
 
-	m_SpinAniWidth.SetRange(-100, 100);
+	m_SpinAniWidth.SetRange(-1000, 1000);
 	m_SpinAniWidth.SetPos(0);
-	m_spinAniTop.SetRange(-100, 100);
+	m_spinAniTop.SetRange(-1000, 1000);
 	m_spinAniTop.SetPos(0);
-	m_spinAniBottom.SetRange(-100, 100);
+	m_spinAniBottom.SetRange(-1000, 1000);
 	m_spinAniBottom.SetPos(0);
-	m_SpinAniPos.SetRange(-100, 100);
+	m_SpinAniPos.SetRange(-1000, 1000);
 	m_SpinAniPos.SetPos(0);
 
 	CMainFrame* pMainFrame = (CMainFrame*)AfxGetMainWnd();
@@ -137,7 +136,7 @@ void CChildForm::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, EIDT__ANIMATION_MAX_ANGLE, m_tbAniMaxAngle);
 	DDX_Control(pDX, SPIN_ANIMATION_MAX_ANGLE, m_spinAniMaxAngle);
 
-	m_spinAniMaxAngle.SetRange(-100, 100);
+	m_spinAniMaxAngle.SetRange(-1000, 1000);
 	m_spinAniMaxAngle.SetPos(0);
 
 	DDX_Control(pDX, CB_ANI_SELECT_ANI, m_cbAniSelect);
@@ -170,7 +169,7 @@ void CChildForm::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, SPIN_ANIMATION_MIN_ANGLE, m_spinAniMinAngle);
 
 	m_tbAniMinAngle.SetWindowTextW(TEXT("0.0"));
-	m_spinAniMinAngle.SetRange(-100, 100);
+	m_spinAniMinAngle.SetRange(-1000, 1000);
 	m_spinAniMinAngle.SetPos(0);
 	DDX_Control(pDX, CHECK_ROOT, m_checkBoxRoot);
 	DDX_Control(pDX, CHECK_PELVIS, m_checkBoxPelvis);
@@ -186,13 +185,18 @@ void CChildForm::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, CHECK_RIGHTANKLE, m_checkBoxRightAnkle);
 
 	OnCbnSelchangeAniSelectAni();
+	DDX_Control(pDX, EIDT__ANIMATION_ROT_SPD, m_tbRotSpeed);
+	DDX_Control(pDX, SPIN_ANIMATION_MIN_ANGLE2, m_spinRotSpd);
+
+	m_tbRotSpeed.SetWindowTextW(TEXT("0.0"));
+	m_spinRotSpd.SetRange(-1000, 1000);
+	m_spinRotSpd.SetPos(0);
 }
 
 BEGIN_MESSAGE_MAP(CChildForm, CFormView)
 	ON_BN_CLICKED(IDC_TEST_BUTTON, &CChildForm::OnBnClickedTestButton)
 	ON_WM_CREATE()
 	ON_WM_ACTIVATE()
-	ON_CBN_SELCHANGE(IDC_COMBO1, &CChildForm::OnCbnSelchangeCombo1)
 	ON_NOTIFY(TVN_SELCHANGED, IDC_BONE_TREE, &CChildForm::OnTvnSelchangedBoneTree)
 	ON_NOTIFY(UDN_DELTAPOS, SPIN_ROOT_BONE_POS_X, &CChildForm::OnDeltaposRootBonePosX)
 	ON_NOTIFY(UDN_DELTAPOS, SPIN_ROOT_BONE_POS_Y, &CChildForm::OnDeltaposRootBonePosY)
@@ -203,7 +207,6 @@ BEGIN_MESSAGE_MAP(CChildForm, CFormView)
 	ON_EN_CHANGE(EDIT_BONE_ANGLE, &CChildForm::OnEnChangeBoneAngle)
 	ON_NOTIFY(UDN_DELTAPOS, SPIN_BONE_ANGLE, &CChildForm::OnDeltaposBoneAngle)
 	ON_CBN_EDITUPDATE(CB_ROOT_BONE_AXIS, &CChildForm::OnCbnEditupdateRootBoneAxis)
-	ON_CBN_DROPDOWN(CB_ROOT_BONE_AXIS, &CChildForm::OnCbnDropdownRootBoneAxis)
 	ON_NOTIFY(TVN_SELCHANGED, IDC_ANIMATION_TREE, &CChildForm::OnTvnSelchangedAnimationTree)
 	ON_EN_CHANGE(EDIT_ANIMATION_WIDTH, &CChildForm::OnEnChangeAnimationWidth)
 	ON_EN_CHANGE(SPIN_ANIMATION_POS, &CChildForm::OnEnChangeAnimationPos)
@@ -235,6 +238,12 @@ BEGIN_MESSAGE_MAP(CChildForm, CFormView)
 	ON_NOTIFY(UDN_DELTAPOS, SPIN_ANIMATION_MIN_ANGLE, &CChildForm::OnDeltaposAnimationMinAngle)
 	ON_BN_CLICKED(IDC_SAVE_BUTTON, &CChildForm::OnBnClickedSaveButton)
 	ON_BN_CLICKED(IDC_LOAD_BUTTON, &CChildForm::OnBnClickedLoadButton)
+	ON_BN_CLICKED(IDC_CLEAR_BUTTON, &CChildForm::OnBnClickedClearButton)
+	ON_BN_CLICKED(IDC_CLEAR_BUTTON2, &CChildForm::OnBnClickedClearButton2)
+	ON_BN_CLICKED(IDC_CLEAR_BUTTON3, &CChildForm::OnBnClickedClearButton3)
+	ON_EN_CHANGE(EIDT__ANIMATION_ROT_SPD, &CChildForm::Rot_Spd_Change)
+	ON_NOTIFY(UDN_DELTAPOS, SPIN_ANIMATION_MIN_ANGLE2, &CChildForm::OnDeltaposAnimationMinAngle2)
+	ON_CBN_SELCHANGE(CB_ROOT_BONE_AXIS, &CChildForm::OnCbnSelchangeRootBoneAxis)
 END_MESSAGE_MAP()
 
 
@@ -289,13 +298,6 @@ void CChildForm::OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimized)
 	CFormView::OnActivate(nState, pWndOther, bMinimized);
 	// TODO: Add your message handler code here
 }
-
-
-void CChildForm::OnCbnSelchangeCombo1()
-{
-	// TODO: Add your control notification handler code here
-}
-
 
 void CChildForm::OnTvnSelchangedBoneTree(NMHDR *pNMHDR, LRESULT *pResult)
 {
@@ -359,9 +361,9 @@ void CChildForm::OnDeltaposRootBonePosX(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	LPNMUPDOWN pNMUpDown = reinterpret_cast<LPNMUPDOWN>(pNMHDR);
 
-	float fVal = pNMUpDown->iPos * 0.1 + pNMUpDown->iDelta* 0.1;
+	double fVal = pNMUpDown->iPos * 0.01 + pNMUpDown->iDelta* 0.01;
 
-	if ((-100.f <= fVal) && (100.f >= fVal))
+	if ((-1000.f <= fVal) && (1000.f >= fVal))
 	{
 		CString sValue;
 		sValue.Format(_T("%3.2f"), fVal);
@@ -375,9 +377,9 @@ void CChildForm::OnDeltaposRootBonePosY(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	LPNMUPDOWN pNMUpDown = reinterpret_cast<LPNMUPDOWN>(pNMHDR);
 
-	float fVal = pNMUpDown->iPos * 0.1 + pNMUpDown->iDelta* 0.1;
+	double fVal = pNMUpDown->iPos * 0.01 + pNMUpDown->iDelta* 0.01;
 
-	if ((-100.f <= fVal) && (100.f >= fVal))
+	if ((-1000.f <= fVal) && (1000.f >= fVal))
 	{
 		CString sValue;
 		sValue.Format(_T("%3.2f"), fVal);
@@ -391,9 +393,9 @@ void CChildForm::OnDeltaposRootBonePosZ(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	LPNMUPDOWN pNMUpDown = reinterpret_cast<LPNMUPDOWN>(pNMHDR);
 
-	float fVal = pNMUpDown->iPos * 0.1 + pNMUpDown->iDelta* 0.1;
+	double fVal = pNMUpDown->iPos * 0.01 + pNMUpDown->iDelta* 0.01;
 
-	if ((-100.f <= fVal) && (100.f >= fVal))
+	if ((-1000.f <= fVal) && (1000.f >= fVal))
 	{
 		CString sValue;
 		sValue.Format(_T("%3.2f"), fVal);
@@ -451,8 +453,8 @@ void CChildForm::OnEnChangeRootBonePosX()
 	CString str;
 	m_tbRootBonePosX.GetWindowTextW(str);
 
-	float fValue = _tstof(str);
-	g_vecBoneTransfrom[m_iBoneIndex]->Set_LocalPos(fValue, Engine::AXISX);
+	double fValue = _tstof(str);
+	g_vecBoneTransfrom[m_iAniInfoIndex][m_iBoneIndex]->Set_LocalPos(fValue, Engine::AXISX);
 }
 
 
@@ -462,8 +464,8 @@ void CChildForm::OnEnChangeRootBonePosY()
 	CString str;
 	m_tbRootBonePosY.GetWindowTextW(str);
 
-	float fValue = _tstof(str);
-	g_vecBoneTransfrom[m_iBoneIndex]->Set_LocalPos(fValue, Engine::AXISY);
+	double fValue = _tstof(str);
+	g_vecBoneTransfrom[m_iAniInfoIndex][m_iBoneIndex]->Set_LocalPos(fValue, Engine::AXISY);
 }
 
 
@@ -473,8 +475,8 @@ void CChildForm::OnEnChangeRootBonePosZ()
 	CString str;
 	m_tbRootBonePosZ.GetWindowTextW(str);
 
-	float fValue = _tstof(str);
-	g_vecBoneTransfrom[m_iBoneIndex]->Set_LocalPos(fValue, Engine::AXISZ);
+	double fValue = _tstof(str);
+	g_vecBoneTransfrom[m_iAniInfoIndex][m_iBoneIndex]->Set_LocalPos(fValue, Engine::AXISZ);
 }
 
 
@@ -484,9 +486,9 @@ void CChildForm::OnEnChangeBoneAngle()
 	CString str;
 	m_tbBoneAngle.GetWindowTextW(m_strBoneAngle);
 
-	float fValue = _tstof(m_strBoneAngle);
+	double fValue = _tstof(m_strBoneAngle);
 	m_fBoneLocalAngle = fValue;
-	g_vecBoneTransfrom[m_iBoneIndex]->Set_LocalXYZMatrix(m_vBoneLocalAxis, m_fBoneLocalAngle);
+	g_vecBoneTransfrom[m_iAniInfoIndex][m_iBoneIndex]->Turn_Bone(m_vBoneLocalAxis, 0.f, m_fBoneLocalAngle);
 }
 
 
@@ -494,9 +496,9 @@ void CChildForm::OnDeltaposBoneAngle(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	LPNMUPDOWN pNMUpDown = reinterpret_cast<LPNMUPDOWN>(pNMHDR);
 
-	float fVal = pNMUpDown->iPos * 0.1 + pNMUpDown->iDelta* 0.1;
+	double fVal = pNMUpDown->iPos * 0.01 + pNMUpDown->iDelta* 0.01;
 
-	if ((-100.f <= fVal) && (100.f >= fVal))
+	if ((-1000.f <= fVal) && (1000.f >= fVal))
 	{
 		CString sValue;
 		sValue.Format(_T("%3.2f"), fVal);
@@ -508,35 +510,6 @@ void CChildForm::OnDeltaposBoneAngle(NMHDR *pNMHDR, LRESULT *pResult)
 
 void CChildForm::OnCbnEditupdateRootBoneAxis()
 {
-	if (AXISX == cb_boneAxis.GetCurSel())
-	{
-		m_vBoneLocalAxis = D3DXVECTOR3(1.f, 0.f, 0.f);
-	}
-	else if (AXISY == cb_boneAxis.GetCurSel())
-	{
-		m_vBoneLocalAxis = D3DXVECTOR3(-1.f, 0.f, 0.f);
-	}
-	else if (AXISZ == cb_boneAxis.GetCurSel())
-	{
-		m_vBoneLocalAxis = D3DXVECTOR3(0.f, 0.f, 1.f);
-	}
-}
-
-
-void CChildForm::OnCbnDropdownRootBoneAxis()
-{
-	if (AXISX == cb_boneAxis.GetCurSel())
-	{
-		m_vBoneLocalAxis = D3DXVECTOR3(1.f, 0.f, 0.f);
-	}
-	else if (AXISY == cb_boneAxis.GetCurSel())
-	{
-		m_vBoneLocalAxis = D3DXVECTOR3(0.f, 1.f, 0.f);
-	}
-	else if (AXISZ == cb_boneAxis.GetCurSel())
-	{
-		m_vBoneLocalAxis = D3DXVECTOR3(0.f, 0.f, 1.f);
-	}
 }
 
 
@@ -554,19 +527,19 @@ void CChildForm::OnTvnSelchangedAnimationTree(NMHDR *pNMHDR, LRESULT *pResult)
 	{
 		m_iAniIndex = 1;
 	}
-	else if (!strItem.Compare(KEY_ANI_LEFTARM))
+	else if (!strItem.Compare(KEY_ANI_LEFTLEG))
 	{
 		m_iAniIndex = 2;
 	}
-	else if (!strItem.Compare(KEY_ANI_RIGHTARM))
+	else if (!strItem.Compare(KEY_ANI_RIGHTLEG))
 	{
 		m_iAniIndex = 3;
 	}
-	else if (!strItem.Compare(KEY_ANI_LEFTLEG))
+	else if (!strItem.Compare(KEY_ANI_LEFTARM))
 	{
 		m_iAniIndex = 4;
 	}
-	else if (!strItem.Compare(KEY_ANI_RIGHTLEG))
+	else if (!strItem.Compare(KEY_ANI_RIGHTARM))
 	{
 		m_iAniIndex = 5;
 	}
@@ -604,9 +577,9 @@ void CChildForm::OnDeltaposAnimationWidth(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	LPNMUPDOWN pNMUpDown = reinterpret_cast<LPNMUPDOWN>(pNMHDR);
 
-	m_fWitdh = pNMUpDown->iPos * 0.1 + pNMUpDown->iDelta* 0.1;
+	m_fWitdh = pNMUpDown->iPos * 0.01 + pNMUpDown->iDelta* 0.01;
 
-	if ((-100.f <= m_fWitdh) && (100.f >= m_fWitdh))
+	if ((-1000.f <= m_fWitdh) && (1000.f >= m_fWitdh))
 	{
 		CString sValue;
 		sValue.Format(_T("%3.2f"), m_fWitdh);
@@ -616,6 +589,7 @@ void CChildForm::OnDeltaposAnimationWidth(NMHDR *pNMHDR, LRESULT *pResult)
 	}
 	*pResult = 0;
 }
+
 
 
 void CChildForm::OnEnChangeAnimationTop()
@@ -634,9 +608,9 @@ void CChildForm::OnDeltaposAnimationTop(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	LPNMUPDOWN pNMUpDown = reinterpret_cast<LPNMUPDOWN>(pNMHDR);
 
-	m_fTop = pNMUpDown->iPos * 0.1 + pNMUpDown->iDelta* 0.1;
+	m_fTop = pNMUpDown->iPos * 0.01 + pNMUpDown->iDelta* 0.01;
 
-	if ((-100.f <= m_fTop) && (100.f >= m_fTop))
+	if ((-1000.f <= m_fTop) && (1000.f >= m_fTop))
 	{
 		CString sValue;
 		sValue.Format(_T("%3.2f"), m_fTop);
@@ -665,9 +639,9 @@ void CChildForm::OnDeltaposRootBoneBottom(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	LPNMUPDOWN pNMUpDown = reinterpret_cast<LPNMUPDOWN>(pNMHDR);
 
-	m_fBottom = pNMUpDown->iPos * 0.1 + pNMUpDown->iDelta* 0.1;
+	m_fBottom = pNMUpDown->iPos * 0.01 + pNMUpDown->iDelta* 0.01;
 
-	if ((-100.f <= m_fBottom) && (100.f >= m_fBottom))
+	if ((-1000.f <= m_fBottom) && (1000.f >= m_fBottom))
 	{
 		CString sValue;
 		sValue.Format(_T("%3.2f"), m_fBottom);
@@ -694,9 +668,9 @@ void CChildForm::OnDeltaposRootBonePosZ3(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	LPNMUPDOWN pNMUpDown = reinterpret_cast<LPNMUPDOWN>(pNMHDR);
 
-	m_fPos = pNMUpDown->iPos * 0.1 + pNMUpDown->iDelta* 0.1;
+	m_fPos = pNMUpDown->iPos * 0.01 + pNMUpDown->iDelta* 0.01;
 
-	if ((-100.f <= m_fPos) && (100.f >= m_fPos))
+	if ((-1000.f <= m_fPos) && (1000.f >= m_fPos))
 	{
 		CString sValue;
 		sValue.Format(_T("%3.2f"), m_fPos);
@@ -712,18 +686,22 @@ void CChildForm::OnDeltaposRootBonePosZ3(NMHDR *pNMHDR, LRESULT *pResult)
 
 void CChildForm::OnBnClickedAniAxis(UINT uiID)
 {
-	g_vecBoneTransfrom[m_iAniBoneSelect]->Init_ActiveAngle();
+	g_vecBoneTransfrom[m_iAniInfoIndex][m_iAniBoneSelect]->Init_ActiveAngle();
 
 	cout << "애니 본 인덱스" << m_iAniBoneSelect << endl;
+
  	switch (uiID)
 	{
 	case RADIO_ANI_AXIS_1:
+		//m_vBoneLocalAxis = D3DXVECTOR3{ 1.f, 0.f, 0.f };
 		g_vecAniInfo[m_iAniInfoIndex].m_varr[m_iAniBoneSelect] = D3DXVECTOR3{ 1.f, 0.f, 0.f };
 		break;
 	case RADIO_ANI_AXIS_2:
+		//m_vBoneLocalAxis = D3DXVECTOR3{ 0.f, 1.f, 0.f };
 		g_vecAniInfo[m_iAniInfoIndex].m_varr[m_iAniBoneSelect] = D3DXVECTOR3{ 0.f, 1.f, 0.f };
 		break;
 	case RADIO_ANI_AXIS_3:
+		//m_vBoneLocalAxis = D3DXVECTOR3{ 0.f, 0.f, 1.f };
 		g_vecAniInfo[m_iAniInfoIndex].m_varr[m_iAniBoneSelect] = D3DXVECTOR3{0.f, 0.f, 1.f};
 		break;
 	}
@@ -736,12 +714,12 @@ void CChildForm::OnBnClickedAniDir(UINT uiID)
 	case RADIO_ANI_DIR_1:
 		g_vecAniInfo[m_iAniInfoIndex].uDir[m_iAniBoneSelect] = 0x00;
 		g_vecAniInfo[m_iAniInfoIndex].uDir[m_iAniBoneSelect] |= 0b10;
-		g_vecBoneTransfrom[m_iAniBoneSelect]->Set_Animation(m_fAniMaxAngle[m_iAniBoneSelect], 1.f);
+		g_vecBoneTransfrom[m_iAniInfoIndex][m_iAniBoneSelect]->Set_Animation(m_fAniMaxAngle[m_iAniBoneSelect], 1.f);
 		break;
 	case RADIO_ANI_DIR_2:
 		g_vecAniInfo[m_iAniInfoIndex].uDir[m_iAniBoneSelect] = 0x00;
 		g_vecAniInfo[m_iAniInfoIndex].uDir[m_iAniBoneSelect] |= 0b01;
-		g_vecBoneTransfrom[m_iAniBoneSelect]->Set_Animation(m_fAniMaxAngle[m_iAniBoneSelect], -1.f);
+		g_vecBoneTransfrom[m_iAniInfoIndex][m_iAniBoneSelect]->Set_Animation(m_fAniMaxAngle[m_iAniBoneSelect], -1.f);
 		break;
 	}
 }
@@ -750,18 +728,22 @@ void CChildForm::OnBnClickedAniDir(UINT uiID)
 void CChildForm::OnBnClickedRoot()
 {
 	g_vecAniInfo[m_iAniInfoIndex].uMotion ^= 1UL << CTest::INV_ROOT;
+	g_vecAniInfo[m_iAniInfoIndex].uFlag[m_iAniInfoIndex] = 0x00 << CTest::ANI_SET;
+	cout << "루트 모션 " << g_vecAniInfo[m_iAniInfoIndex].uMotion << endl;
 }
 
 
 void CChildForm::OnBnClickedPelvis()
 {
 	g_vecAniInfo[m_iAniInfoIndex].uMotion ^= 1UL << CTest::INV_PELVIS;
+	g_vecAniInfo[m_iAniInfoIndex].uFlag[m_iAniInfoIndex] = 0x00 << CTest::ANI_SET;
 }
 
 
 void CChildForm::OnBnClickedSpine()
 {
 	g_vecAniInfo[m_iAniInfoIndex].uMotion ^= 1UL << CTest::INV_SPINE;
+	g_vecAniInfo[m_iAniInfoIndex].uFlag[m_iAniInfoIndex] = 0x00 << CTest::ANI_SET;
 }
 
 
@@ -829,7 +811,7 @@ void CChildForm::OnCbnSelchangeAniSelectAni()
 {
 	m_iAniInfoIndex = m_cbAniSelect.GetCurSel();
 	g_pTest->Set_TestState((CTest::TEST_STATE)m_iAniInfoIndex);
-
+	g_pTest->Clear_Flag((CTest::TEST_STATE)m_iAniInfoIndex, 0.f);
 	if (g_vecAniInfo[m_iAniInfoIndex].uMotion SHIFT_OPERATOR(CTest::INV_ROOT))
 		m_checkBoxRoot.SetCheck(TRUE);
 	else
@@ -899,8 +881,8 @@ void CChildForm::AnimationMaxAngleChagned()
 
 	m_fAniMaxAngle[m_iAniBoneSelect] = _tstof(m_strAniMaxAngle);
 
-	g_vecAniInfo[m_iAniInfoIndex].fAngle[m_iAniBoneSelect] = m_fAniMaxAngle[m_iAniBoneSelect];
-	g_vecBoneTransfrom[m_iAniBoneSelect]->Set_MaxAngle(g_vecAniInfo[m_iAniInfoIndex].fAngle[m_iAniBoneSelect]);
+	//g_vecAniInfo[m_iAniInfoIndex].fAngle[m_iAniBoneSelect] = m_fAniMaxAngle[m_iAniBoneSelect];
+	g_vecBoneTransfrom[m_iAniInfoIndex][m_iAniBoneSelect]->Set_MaxAngle(m_fAniMaxAngle[m_iAniBoneSelect]);
 }
 
 
@@ -908,9 +890,9 @@ void CChildForm::OnDeltaposAnimationMaxAngle(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	LPNMUPDOWN pNMUpDown = reinterpret_cast<LPNMUPDOWN>(pNMHDR);
 
-	float fVal = pNMUpDown->iPos * 0.1 + pNMUpDown->iDelta* 0.1;
+	double fVal = pNMUpDown->iPos * 0.01 + pNMUpDown->iDelta* 0.01;
 
-	if ((-100.f <= fVal) && (100.f >= fVal))
+	if ((-1000.f <= fVal) && (1000.f >= fVal))
 	{
 		CString sValue;
 		sValue.Format(_T("%3.2f"), fVal);
@@ -928,9 +910,10 @@ void CChildForm::EnChangeMinAngle()
 
 	m_fAniMinAngle[m_iAniBoneSelect] = _tstof(m_strAniMinAngle);
 
-	g_vecAniInfo[m_iAniInfoIndex].fAngle[m_iAniBoneSelect] = m_fAniMinAngle[m_iAniBoneSelect];
+	//g_vecAniInfo[m_iAniInfoIndex].fAngle[m_iAniBoneSelect] = m_fAniMinAngle[m_iAniBoneSelect];
 
-	g_vecBoneTransfrom[m_iAniBoneSelect]->Set_LocalAngle(g_vecAniInfo[m_iAniInfoIndex].fAngle[m_iAniBoneSelect]);
+	g_vecBoneTransfrom[m_iAniInfoIndex][m_iAniBoneSelect]->Set_LocalAngle(m_fAniMinAngle[m_iAniBoneSelect]);
+	//g_vecAniInfo[m_iAniInfoIndex].m_varr[m_iAniIndex] = m_vBoneLocalAxis;
 }
 
 
@@ -938,9 +921,9 @@ void CChildForm::OnDeltaposAnimationMinAngle(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	LPNMUPDOWN pNMUpDown = reinterpret_cast<LPNMUPDOWN>(pNMHDR);
 
-	float fVal = pNMUpDown->iPos * 0.1 + pNMUpDown->iDelta* 0.1;
+	double fVal = pNMUpDown->iPos * 0.01 + pNMUpDown->iDelta* 0.01;
 
-	if ((-100.f <= fVal) && (100.f >= fVal))
+	if ((-1000.f <= fVal) && (1000.f >= fVal))
 	{
 		CString sValue;
 		sValue.Format(_T("%3.2f"), fVal);
@@ -952,6 +935,7 @@ void CChildForm::OnDeltaposAnimationMinAngle(NMHDR *pNMHDR, LRESULT *pResult)
 
 void CChildForm::OnBnClickedSaveButton()
 {
+	
 	CParser().Save_Process_Animation();
 }
 
@@ -959,4 +943,136 @@ void CChildForm::OnBnClickedSaveButton()
 void CChildForm::OnBnClickedLoadButton()
 {
 	CParser().Load_Process_Animation();
+
+	g_pTest->Set_TestState((CTest::TEST_STATE)m_iAniInfoIndex);
+
+	if (g_vecAniInfo[m_iAniInfoIndex].uMotion SHIFT_OPERATOR(CTest::INV_ROOT))
+		m_checkBoxRoot.SetCheck(TRUE);
+	else
+		m_checkBoxRoot.SetCheck(FALSE);
+
+	if (g_vecAniInfo[m_iAniInfoIndex].uMotion SHIFT_OPERATOR(CTest::INV_PELVIS))
+		m_checkBoxPelvis.SetCheck(TRUE);
+	else
+		m_checkBoxPelvis.SetCheck(FALSE);
+
+	if (g_vecAniInfo[m_iAniInfoIndex].uMotion SHIFT_OPERATOR(CTest::INV_SPINE))
+		m_checkBoxSpine.SetCheck(TRUE);
+	else
+		m_checkBoxSpine.SetCheck(FALSE);
+
+	if (g_vecAniInfo[m_iAniInfoIndex].uMotion SHIFT_OPERATOR(CTest::INV_NECK))
+		m_checkBoxNeck.SetCheck(TRUE);
+	else
+		m_checkBoxNeck.SetCheck(FALSE);
+
+	if (g_vecAniInfo[m_iAniInfoIndex].uMotion SHIFT_OPERATOR(CTest::INV_LEFTLEG))
+		m_checkBoxLeftLeg.SetCheck(TRUE);
+	else
+		m_checkBoxLeftLeg.SetCheck(FALSE);
+
+	if (g_vecAniInfo[m_iAniInfoIndex].uMotion SHIFT_OPERATOR(CTest::INV_RIGHTLEG))
+		m_checkBoxRightLeg.SetCheck(TRUE);
+	else
+		m_checkBoxRightLeg.SetCheck(FALSE);
+
+	if (g_vecAniInfo[m_iAniInfoIndex].uMotion SHIFT_OPERATOR(CTest::INV_LEFTARM))
+		m_checkBoxLeftArm.SetCheck(TRUE);
+	else
+		m_checkBoxLeftArm.SetCheck(FALSE);
+
+	if (g_vecAniInfo[m_iAniInfoIndex].uMotion SHIFT_OPERATOR(CTest::INV_RIGHTARM))
+		m_checkBoxRightArm.SetCheck(TRUE);
+	else
+		m_checkBoxRightArm.SetCheck(FALSE);
+	//Modifying
+	if (g_vecAniInfo[m_iAniInfoIndex].uMotion SHIFT_OPERATOR(CTest::INV_LEFTELBOW))
+		m_checkBoxLeftElbow.SetCheck(TRUE);
+	else
+		m_checkBoxLeftElbow.SetCheck(FALSE);
+
+	if (g_vecAniInfo[m_iAniInfoIndex].uMotion SHIFT_OPERATOR(CTest::INV_RIGHTELBOW))
+		m_checkBoxRightElbow.SetCheck(TRUE);
+	else
+		m_checkBoxRightElbow.SetCheck(FALSE);
+
+	if (g_vecAniInfo[m_iAniInfoIndex].uMotion SHIFT_OPERATOR(CTest::INV_LEFTANKLE))
+		m_checkBoxLeftAnkle.SetCheck(TRUE);
+	else
+		m_checkBoxLeftAnkle.SetCheck(FALSE);
+
+	if (g_vecAniInfo[m_iAniInfoIndex].uMotion SHIFT_OPERATOR(CTest::INV_RIGHTANKLE))
+		m_checkBoxRightAnkle.SetCheck(TRUE);
+	else
+		m_checkBoxRightAnkle.SetCheck(FALSE);
+}
+
+
+void CChildForm::OnBnClickedClearButton()
+{
+	for (int i = 0; i < CTest::ANIMATION_STATE_END; ++i)
+	{
+		g_vecBoneTransfrom[m_iAniInfoIndex][i]->Set_MaxAngle(0.f);
+		g_vecBoneTransfrom[m_iAniInfoIndex][i]->Set_LocalAngle(0.f);
+	}
+}
+
+
+void CChildForm::OnBnClickedClearButton2()
+{
+	g_pTest->Set_ClearFlag();
+}
+
+
+void CChildForm::OnBnClickedClearButton3()
+{
+	g_vecBoneTransfrom[m_iAniInfoIndex][CTest::ROOT]->Rotation(_float3(1.f, 0.f, 0.f), 0.f);
+	g_vecBoneTransfrom[m_iAniInfoIndex][CTest::ROOT]->Rotation(_float3(0.f, 1.f, 0.f), 0.f);
+	g_vecBoneTransfrom[m_iAniInfoIndex][CTest::ROOT]->Rotation(_float3(0.f, 0.f, 1.f), 0.f);
+}
+
+
+void CChildForm::Rot_Spd_Change()
+{
+	AllowOnlyRealNum(&m_tbRotSpeed, true, m_strBoneSpeed);
+	m_tbRotSpeed.GetWindowTextW(m_strBoneSpeed);
+
+	m_fBoneSpeed = _tstof(m_strBoneSpeed);
+
+	g_vecBoneTransfrom[m_iAniInfoIndex][m_iAniBoneSelect]->Set_Speed(m_fBoneSpeed);
+}
+
+
+void CChildForm::OnDeltaposAnimationMinAngle2(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMUPDOWN pNMUpDown = reinterpret_cast<LPNMUPDOWN>(pNMHDR);
+
+	m_fBoneSpeed = pNMUpDown->iPos * 0.01 + pNMUpDown->iDelta* 0.01;
+
+	if ((-1000.f <= m_fBoneSpeed) && (1000.f >= m_fBoneSpeed))
+	{
+		CString sValue;
+		sValue.Format(_T("%3.2f"), m_fBoneSpeed);
+		m_strBoneSpeed = sValue;
+		m_tbRotSpeed.SetWindowTextW(m_strBoneSpeed);
+		g_vecBoneTransfrom[m_iAniInfoIndex][m_iAniBoneSelect]->Set_Speed(m_fBoneSpeed);
+	}
+	*pResult = 0;
+}
+
+
+void CChildForm::OnCbnSelchangeRootBoneAxis()
+{
+	if (AXISX == cb_boneAxis.GetCurSel())
+	{
+		m_vBoneLocalAxis = D3DXVECTOR3(1.f, 0.f, 0.f);
+	}
+	else if (AXISY == cb_boneAxis.GetCurSel())
+	{
+		m_vBoneLocalAxis = D3DXVECTOR3(0.f, 1.f, 0.f);
+	}
+	else if (AXISZ == cb_boneAxis.GetCurSel())
+	{
+		m_vBoneLocalAxis = D3DXVECTOR3(0.f, 0.f, 1.f);
+	}
 }

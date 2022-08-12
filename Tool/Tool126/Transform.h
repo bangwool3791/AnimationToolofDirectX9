@@ -16,14 +16,21 @@ private:
 
 public:
 	//엔진으로 코드 옮길 것
-	void Init_LocalAngle()
+
+	_float3 Get_State(STATE eState, _float4x4 _matrix)
 	{
-		m_fAngle = m_TransformDesc.fLocalAngle;
+		return *(_float3 *)&_matrix.m[eState][0];
 	}
 
 	_float3 Get_State(STATE eState) {
 		return *(_float3 *)&m_TransformDesc.WorldMatrix.m[eState][0];
 	}
+
+	void Set_State(STATE eState, _float4x4& _matrix, const D3DXVECTOR3& vState)
+	{
+		memcpy(&_matrix.m[eState][0], &vState, sizeof(D3DXVECTOR3));
+	}
+
 
 	_float4x4 Get_WorldMatrixInverse() {
 		_float4x4		WorldMatrix;
@@ -38,22 +45,16 @@ public:
 	{
 		return &m_TransformDesc;
 	}
+
 	_float3 Get_LocalState(STATE eState) {
 		return *(_float3 *)&m_TransformDesc.LocalMatrix.m[eState][0];
-	}
-
-	_float4x4 Get_LocalMatrixInverse() {
-		_float4x4		LocalMatrix;
-		return *D3DXMatrixInverse(&LocalMatrix, nullptr, &m_TransformDesc.LocalMatrix);
 	}
 
 	_float4x4 Get_BindMatrix() {
 		return m_BindLocalMatrix * m_BindWorldMatrix;
 	}
 
-	void Set_LocalState(STATE eState, const D3DXVECTOR3& vState) {
-		memcpy(&m_TransformDesc.LocalMatrix.m[eState][0], &vState, sizeof(D3DXVECTOR3));
-	}
+	void Set_LocalState(STATE eState, const D3DXVECTOR3& vState);
 
 	void Set_LocalPos(float _fPos, const AXIS eAxis) {
 		m_TransformDesc.LocalMatrix.m[STATE_POSITION][eAxis] = _fPos;
@@ -83,8 +84,6 @@ public:
 		}
 	}
 
-	HRESULT CTransform::Go_3DPerspective(_float fTimeDelta, _float3 vTarget);
-
 	_float3 Get_Scale() {
 		return _float3(D3DXVec3Length(&Get_State(STATE_RIGHT)),
 			D3DXVec3Length(&Get_State(STATE_UP)),
@@ -96,35 +95,37 @@ public:
 			D3DXVec3Length(&Get_LocalState(STATE_UP)),
 			D3DXVec3Length(&Get_LocalState(STATE_LOOK)));
 	}
-
+	//삭제
 	void Set_LocalXYZMatrix(_float3 vAxis, _float fAngle)
 	{
-		m_fAngle = fAngle;
-		//m_TransformDesc.fLocalAngle = fAngle;
+		m_TransformDesc.vAxis = vAxis;
+		m_TransformDesc.fInitAngle = fAngle;
 		if (vAxis.x)
 		{
-			m_TransformDesc.LocalMatrix.m[1][1] = cosf(m_fAngle);
-			m_TransformDesc.LocalMatrix.m[1][2] = sinf(m_fAngle);
-			m_TransformDesc.LocalMatrix.m[2][1] = -sinf(m_fAngle);
-			m_TransformDesc.LocalMatrix.m[2][2] = cosf(m_fAngle);
+			m_TransformDesc.LocalMatrix.m[1][1] = cosf(fAngle);
+			m_TransformDesc.LocalMatrix.m[1][2] = sinf(fAngle);
+			m_TransformDesc.LocalMatrix.m[2][1] = -sinf(fAngle);
+			m_TransformDesc.LocalMatrix.m[2][2] = cosf(fAngle);
 		}
 
 		if (vAxis.y)
 		{
-			m_TransformDesc.LocalMatrix.m[0][0] = cosf(m_fAngle);
-			m_TransformDesc.LocalMatrix.m[0][2] = -sinf(m_fAngle);
-			m_TransformDesc.LocalMatrix.m[2][0] = sinf(m_fAngle);
-			m_TransformDesc.LocalMatrix.m[2][2] = cosf(m_fAngle);
+			m_TransformDesc.LocalMatrix.m[0][0] = cosf(fAngle);
+			m_TransformDesc.LocalMatrix.m[0][2] = -sinf(fAngle);
+			m_TransformDesc.LocalMatrix.m[2][0] = sinf(fAngle);
+			m_TransformDesc.LocalMatrix.m[2][2] = cosf(fAngle);
 		}
 
 		if (vAxis.z)
 		{
-			m_TransformDesc.LocalMatrix.m[0][0] = cosf(m_fAngle);
-			m_TransformDesc.LocalMatrix.m[0][1] = sinf(m_fAngle);
-			m_TransformDesc.LocalMatrix.m[1][0] = -sinf(m_fAngle);
-			m_TransformDesc.LocalMatrix.m[1][1] = cosf(m_fAngle);
+			m_TransformDesc.LocalMatrix.m[0][0] = cosf(fAngle);
+			m_TransformDesc.LocalMatrix.m[0][1] = sinf(fAngle);
+			m_TransformDesc.LocalMatrix.m[1][0] = -sinf(fAngle);
+			m_TransformDesc.LocalMatrix.m[1][1] = cosf(fAngle);
 		}
+		Bind_OnGraphicDevice();
 	}
+
 public:
 	virtual HRESULT NativeConstruct_Prototype() override;
 	virtual HRESULT NativeConstruct(void* pArg) override;
@@ -139,10 +140,24 @@ public:
 	_float Turn_Local(_float3& vAxis, _float fTimeDelta);
 	HRESULT LookAt(const _float3& vTargetPos);
 	HRESULT Chase(const _float3& vTargetPos, _float fTimeDelta, _float fLimit = 1.f);
+	void  Turn_Bone(_float3 & vAxis, _float fTimeDelta, _float fAngle);
+	//hhlee
+	_float3 Set_MatrixPos(STATE eState, _float4x4 matrix, _float3 vPos)
+	{
+		//행렬의 포지션 값을 가져옴
+		_float3 position = Get_State(eState, matrix);
+
+		Set_State(eState, matrix, vPos);
+
+		return position;
+	}
 	void Set_MaxAngle(_float _fMaxAngle)
 	{
 		m_TransformDesc.fMaxAngle = _fMaxAngle;
-		m_fAngle = 0.f;
+	}
+	float Get_MaxAngle()
+	{
+		return m_TransformDesc.fMaxAngle;
 	}
 #ifdef _DEBUG
 	const TCHAR* Get_Tag()
@@ -151,24 +166,34 @@ public:
 	}
 #endif
 	//로컬 앵글이란 뼈가 회전을 할 때 회전하는 시작 각도를 말함.
-	FORCEINLINE void	Set_Animation(_float _fMaxAngle, _float _fDir)
+	void	Set_Animation(_float _fMaxAngle, _float _fDir)
 	{
 		m_TransformDesc.fMaxAngle = _fMaxAngle;
 		m_fAngle = m_TransformDesc.fLocalAngle;
 		m_TransformDesc.fDir = _fDir;
 	}
 
-	FORCEINLINE void Set_Dir(_float _fDir)
+	void	Set_Dir(_float _fDir)
 	{
 		m_TransformDesc.fDir = _fDir;
 	}
 
-	FORCEINLINE void	Set_LocalAngle(_float _fMinAngle)
+	
+	void	Set_Speed(_float _fSpd)
+	{
+		m_TransformDesc.fRotationPerSec = _fSpd;
+	}
+
+	void	Set_LocalAngle(_float _fMinAngle)
 	{
 		m_TransformDesc.fLocalAngle = _fMinAngle;
 	}
+	float	Get_LocalAngle()
+	{
+		return m_TransformDesc.fLocalAngle;
+	}
 
-	FORCEINLINE void	Init_ActiveAngle()
+	void	Init_ActiveAngle()
 	{
 		m_fAngle = 0;
 	}
